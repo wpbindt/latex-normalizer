@@ -93,14 +93,16 @@ def _strip_environments_labels(text):
 
 def _remove_commands(text):
     '''
-    Removes '\bla{di}{bla}...{bla}' entirely.
+    Removes '\bla{di}[bla]...{bla}' entirely.
     '''
     command_regex = re.compile(r'''
-                                \\\w*
-                                ({(?:[^}{]+|{(?:[^}{]+|{[^}{]*})*})*})*
+                        \\\w*
+                        ({(?:[^}{]+|{(?:[^}{]+|{[^}{]*})*})*}
+                        |\[(?:[^\]\[]+|\[(?:[^\]\[]+|\[[^\]\[]*\])*\])*\])*
                                ''',
                                re.VERBOSE)
     return command_regex.sub(' ', text)
+
 
 
 def latex_normalizer(path):
