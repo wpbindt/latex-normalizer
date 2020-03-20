@@ -87,7 +87,7 @@ def _strip_environments_labels(text):
     Removes environment delimiters and labels.
     '''
     env_regex = re.compile(r'\\(begin|end|label){.*?}')
-    return env_regex.sub('', text)
+    return env_regex.sub(' ', text)
 
 
 def latex_normalizer(path):
