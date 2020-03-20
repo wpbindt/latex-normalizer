@@ -93,12 +93,20 @@ def latex_normalizer(path):
     and writes normalized version to "original_normalized"
     in the same directory.
     '''
-    normalized_path = path + '_normalized'
+    abs_path = os.path.realpath(path)
+    directory, file_name = os.path.split(abs_path)
+    normalized_file_name = file_name + '_normalized'
+    normalized_path = directory + '/' + normalized_file_name
     while os.path.isfile(normalized_path):
-        print('A file with the name'
-             + normalized_path
-             + 'already exists.')
-        return None
+        print('A file with the name '
+             + normalized_file_name
+             + ' already exists. \n'
+             + 'Please enter a new filename (or press <RETURN> to exit): ')
+        normalized_file_name = input()
+        if normalized_file_name:
+            normalized_path = directory + '/'+ normalized_file_name
+        else:
+            return
 
     with open(path, mode='r') as file:
         text_lines = file.readlines()
