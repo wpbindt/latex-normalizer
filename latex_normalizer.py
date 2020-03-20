@@ -83,6 +83,9 @@ def _remove_environments(text):
 
 
 def _strip_environments_labels(text):
+    '''
+    Removes environment delimiters and labels.
+    '''
     env_regex = re.compile(r'\\(begin|end|label){.*?}')
     return env_regex.sub('', text)
 
@@ -112,7 +115,7 @@ def latex_normalizer(path):
         else:
             return
 
-    with open(path, mode='r') as file:
+    with open(path, 'r') as file:
         text_lines = file.readlines()
 
     text_lines = _remove_line_comments(text_lines)
@@ -131,6 +134,6 @@ def latex_normalizer(path):
     '''        
     Writes result to file named original_file_name_normalized.
     '''
-    with open(normalized_path,'a') as normalized_file:
+    with open(normalized_path, 'a') as normalized_file:
         normalized_file.write(text)
 
