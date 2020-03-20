@@ -96,7 +96,9 @@ def latex_normalizer(path):
     abs_path = os.path.realpath(path)
     directory, file_name = os.path.split(abs_path)
     normalized_file_name = file_name + '_normalized'
-    normalized_path = directory + '/' + normalized_file_name
+    normalized_path = directory 
+                    + os.path.sep
+                    + normalized_file_name
     while os.path.isfile(normalized_path):
         print('A file with the name '
              + normalized_file_name
@@ -104,7 +106,9 @@ def latex_normalizer(path):
              + 'Please enter a new filename (or press <RETURN> to exit): ')
         normalized_file_name = input()
         if normalized_file_name:
-            normalized_path = directory + '/'+ normalized_file_name
+            normalized_path = directory 
+                            + os.path.sep
+                            + normalized_file_name
         else:
             return
 
