@@ -90,6 +90,18 @@ def _strip_environments_labels(text):
     return env_regex.sub(' ', text)
 
 
+def _remove_commands(text):
+    '''
+    Removes '\bla{di}{bla}...{bla}' entirely.
+    '''
+    command_regex = re.compile(r'''
+                                \\\w*
+                                ({(?:[^}{]+|{(?:[^}{]+|{[^}{]*})*})*})*
+                               ''',
+                               re.VERBOSE)
+    return command_regex.sub(' ', text)
+
+
 def latex_normalizer(path):
     '''
     Takes path to original tex file, "original"
@@ -130,6 +142,7 @@ def latex_normalizer(path):
     text = _normalize_commands(text)
     text = _remove_environments(text)
     text = _strip_environments_labels(text)
+    text = _remove_commands(text)
 
     '''        
     Writes result to file named original_file_name_normalized.
