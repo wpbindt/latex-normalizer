@@ -6,7 +6,7 @@ def _remove_line_comments(text_lines):
     '''
     Removes line comments, but not percent symbols.
     '''
-    line_comment_regex = re.compile(r'(?<!\\)%.*$')
+    line_comment_regex = re.compile(r'(?<!\\)(?:\\\\)*%.*$')
     return [line_comment_regex.sub('', x) for x in text_lines]
 
 
