@@ -66,11 +66,13 @@ def _normalize_commands(text):
 def _remove_environments(text):
     '''
     Removes environments and their content.
-    Specifically used for multiline comments
-    and display equations.
+    Specifically used for multiline comments,
+    figures, and display equations.
     '''
     removed_env = [
         r'comment',
+        r'figure',
+        r'tikzpicture',
         r'equation(\*)?',
         r'multline(\*)?',
         r'align(\*)?',
