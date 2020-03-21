@@ -118,7 +118,7 @@ def _remove_commands(text):
     Removes '\bla{di}[bla]...{bla}' entirely.
     '''
     command_regex = re.compile(r'''
-                        \\\w*
+                        \\\w*(\*)?
                         ({(?:[^}{]+|{(?:[^}{]+|{[^}{]*})*})*}
                         |\[(?:[^\]\[]+|\[(?:[^\]\[]+|\[[^\]\[]*\])*\])*\])*
                                ''',
