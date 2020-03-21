@@ -104,6 +104,20 @@ def _remove_commands(text):
     return command_regex.sub(' ', text)
 
 
+def _remove_equations(text):
+    '''
+    Remove inline equations delimited
+    by $ and \(, and remove display 
+    equations delimited by $$ and \[.
+    '''
+    eqn_regex = re.compile(r'''
+                    ((?<!\\)\${1,2}.*?(?<!\\)\${1,2})
+                    |((?<!\\)\\\[.*?(?<!\\)\\\])
+                    |((?<!\\)\\\(.*?(?<!\\)\\\))
+                           ''', 
+                           re.VERBOSE)
+    return eqn_regex.sub(' ', text)
+
 
 def latex_normalizer(path):
     '''
@@ -146,6 +160,7 @@ def latex_normalizer(path):
     text = _remove_environments(text)
     text = _strip_environments_labels(text)
     text = _remove_commands(text)
+    text = _remove_equations(text)
 
     '''        
     Writes result to file named original_file_name_normalized.
