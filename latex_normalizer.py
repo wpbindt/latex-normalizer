@@ -128,8 +128,8 @@ def _remove_commands(text):
 
 def _remove_equations(text):
     '''
-    Remove inline equations delimited
-    by $ and \(, and remove display 
+    Removes inline equations delimited
+    by $ and \(, and removes display 
     equations delimited by $$ and \[.
     '''
     eqn_regex = re.compile(r'''
@@ -141,11 +141,20 @@ def _remove_equations(text):
     return eqn_regex.sub(' ', text)
 
 
+def _remove_special_characters(text):
+    '''
+    Replaces anything that is not in
+    the alphabet by a single space.
+    '''
+    non_alphabet_regex = re.compile(r'[^a-zA-Z\s]')
+    return non_alphabet_regex.sub(' ', text)
+
+
 def _remove_white_space(text):
     '''
     Removes all spaces, tabs, and new
-    lines, and replaces them with single
-    spaces.
+    lines, and replaces them with a 
+    single space.
     '''
     return " ".join(text.split())
 
@@ -192,6 +201,7 @@ def latex_normalizer(path):
     text = _strip_environments_labels(text)
     text = _remove_commands(text)
     text = _remove_equations(text)
+    text = _remove_special_characters(text)
 
     '''        
     Writes result to file named original_file_name_normalized.
