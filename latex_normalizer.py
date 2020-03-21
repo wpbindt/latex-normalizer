@@ -14,32 +14,48 @@ def _normalize_accents(text):
     '''
     Replaces letters with diacritics by their non-
     diacritical counterpart. For example,
-    "hyperk\"ahler" becomes hyperkahler
+    hyperk\"ahler becomes hyperkahler. Moreover,
+    hyperk\"{a}hler becomes hyperkahler too.
     '''
-    accent_regex = re.compile(r'''\\ \'
-                              |\\`
-                              |\\\^
-                              |\\"
-                              |\\~
-                              |\\=
-                              |\\ \.
-                              |\\u\ 
-                              |\\v\ 
-                              |\\H\ 
-                              |\\t\ 
-                              |\\c\ 
-                              |\\d\ 
-                              |\\b\ 
-                              |\\k\ ''',
-                          re.VERBOSE)
-    return accent_regex.sub('', text)
+    letters = [
+            'u',
+            'v',
+            'H',
+            't',
+            'c',
+            'd',
+            'b',
+            'k',
+            ]
+    letter_accent_regex = re.compile(
+            r'\\(?:' \
+            + '|'.join(letters) \
+            + r')(?:\ |{(\w{1,2})})'
+            )
+    non_letters = [
+            r'\'',
+            r'`',
+            r'\^',
+            r'"',
+            r'~',
+            r'=',
+            r'\.',
+            ]
+    non_letter_accent_regex = re.compile(
+            r'\\(?:' \
+            + '|'.join(non_letters) \
+            + r')(?:{(\w)})?'
+            )
+    output = letter_accent_regex.sub(r'\1', text)
+    output = non_letter_accent_regex.sub(r'\1', output)
+    return output
 
 
 def _normalize_commands(text):
     '''
     Replaces "\command{bla}" with " bla ". Useful
     for things like \emph, and \text. Adapted from
-    remove_command from arxiv-latex-cleaner
+    remove_command from arxiv-latex-cleaner.
     '''
     normalized_commands = [
         'subsubsection',
