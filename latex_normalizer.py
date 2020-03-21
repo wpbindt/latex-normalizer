@@ -141,6 +141,15 @@ def _remove_equations(text):
     return eqn_regex.sub(' ', text)
 
 
+def _remove_white_space(text):
+    '''
+    Removes all spaces, tabs, and new
+    lines, and replaces them with single
+    spaces.
+    '''
+    return " ".join(text.split())
+
+
 def latex_normalizer(path):
     '''
     Takes path to original tex file, "original"
