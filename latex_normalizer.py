@@ -69,9 +69,10 @@ def _remove_environments(text):
     '''
     removed_env = [
         r'comment',
-        r'equation\*',
-        r'equation',
-        r'multline',
+        r'equation(\*)?',
+        r'multline(\*)?',
+        r'align(\*)?',
+        r'gather(\*)?',
     ]
     for env in removed_env:
         env_regex = re.compile(r'\\begin{'
