@@ -81,7 +81,8 @@ def _normalize_commands(text):
 
 def _remove_environments(text):
     '''
-    Removes environments and their content.
+    Removes environments and their content,
+    for a specified list of environments.
     Specifically used for multiline comments,
     figures, and display equations.
     '''
