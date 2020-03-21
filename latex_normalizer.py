@@ -10,7 +10,7 @@ def _remove_line_comments(text_lines):
     return [line_comment_regex.sub('', x) for x in text_lines]
 
 
-def _normalize_accents(text):
+def _remove_accents(text):
     '''
     Replaces letters with diacritics by their non-
     diacritical counterpart. For example,
@@ -176,7 +176,7 @@ def latex_normalizer(path):
     text_lines = [x.rstrip() for x in text_lines if x.rstrip()]
     text = "\n".join(text_lines)
 
-    text = _normalize_accents(text)
+    text = _remove_accents(text)
     text = _normalize_commands(text)
     text = _remove_environments(text)
     text = _strip_environments_labels(text)
