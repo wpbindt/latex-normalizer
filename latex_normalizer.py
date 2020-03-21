@@ -202,6 +202,7 @@ def latex_normalizer(path):
     text = _remove_commands(text)
     text = _remove_equations(text)
     text = _remove_special_characters(text)
+    text = _remove_white_space(text)
 
     '''        
     Writes result to file named original_file_name_normalized.
