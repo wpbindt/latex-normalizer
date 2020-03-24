@@ -158,8 +158,33 @@ def _remove_white_space(text):
     '''
     return " ".join(text.split())
 
+def latex_normalizer(text, lines=False):
+    '''
+    Takes a string or a list of lines 
+    containing latex syntax, and returns 
+    a string stripped of that syntax. 
+    For example,
+    "\begin{document} Hi! \end{document}"
+    becomes:
+    "Hi"
+    '''
+    if lines:
+        text = _remove_line_comments(text)
+        text = [x.rstrip()
+                for x in text
+                if x.rstrip()]
+        text = " ".join(text)
+    text = _remove_accents(text)
+    text = _normalize_commands(text)
+    text = _remove_environments(text)
+    text = _strip_environments_labels(text)
+    text = _remove_commands(text)
+    text = _remove_equations(text)
+    text = _remove_special_characters(text)
+    text = _remove_white_space(text)
+    return text
 
-def latex_normalizer(path):
+def tex_file_normalizer(path):
     '''
     Takes path to original tex file, "original"
     and writes normalized version to "original_normalized"
@@ -184,25 +209,13 @@ def latex_normalizer(path):
         else:
             return
 
+    '''
+    Stores the lines of the file in a list, and
+    normalizes the result.
+    '''
     with open(path, 'r') as file:
-        text_lines = file.readlines()
-
-    text_lines = _remove_line_comments(text_lines)
-
-    '''
-    Removes blank lines, concatenates result.
-    '''
-    text_lines = [x.rstrip() for x in text_lines if x.rstrip()]
-    text = "\n".join(text_lines)
-
-    text = _remove_accents(text)
-    text = _normalize_commands(text)
-    text = _remove_environments(text)
-    text = _strip_environments_labels(text)
-    text = _remove_commands(text)
-    text = _remove_equations(text)
-    text = _remove_special_characters(text)
-    text = _remove_white_space(text)
+        text = file.readlines()
+    text = latex_normalizer(text, lines=True)
 
     '''        
     Writes result to file named original_file_name_normalized.
