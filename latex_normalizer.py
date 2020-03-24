@@ -158,6 +158,7 @@ def _remove_white_space(text):
     '''
     return " ".join(text.split())
 
+
 def latex_normalizer(text, lines=False):
     '''
     Takes a string or a list of lines 
