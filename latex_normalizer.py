@@ -29,12 +29,21 @@ def _remove_line_comments(text):
 
 
 def _remove_accents(text):
-    '''
+    r'''
     Replace latex code for diacritics with the empty string.
 
     Replace letters with diacritics by their non-diacritical
     counterpart. For example, hyperk\"ahler becomes hyperkahler. 
     Moreover, hyperk\"{a}hler becomes hyperkahler too.
+
+    >>> _remove_accents('Nothing happens to me')
+    'Nothing happens to me'
+
+    >>> _remove_accents('hyperk\\"ahler is hyperk\\"{a}hler')
+    'hyperkahler is hyperkahler'
+
+    >>> _remove_accents('\\c Ca va? \\c{C}a va')
+    'Ca va? Ca va'
     '''
     letters = [
             'u',
@@ -71,7 +80,7 @@ def _remove_accents(text):
 
 
 def _normalize_commands(text):
-    '''
+    r'''
     Replace a list of specified latex commands with their arguments.
 
     More concretely, this function replaces "\command{argument}" with
@@ -88,6 +97,15 @@ def _normalize_commands(text):
         textit,
         textrm.
     This is adapted from remove_command, from arxiv-latex-cleaner.
+
+    >>> _normalize_commands('\shouldnt{change}')
+    '\\shouldnt{change}'
+
+    >>> _normalize_commands('\chapter{One')
+    '\\chapter{One'
+
+    >>> _normalize_commands('\chapter{Hyperk\\"{a}hlers}')
+    ' Hyperk\\"{a}hlers '
     '''
     normalized_commands = [
         'subsubsection',
@@ -112,7 +130,7 @@ def _normalize_commands(text):
 
 
 def _remove_environments(text):
-    '''
+    r'''
     Remove a specified list of latex environments.
 
     Specifically, replace "\begin{environment} contents 
