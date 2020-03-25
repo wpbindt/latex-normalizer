@@ -2,12 +2,12 @@ import os.path
 import re
 
 
-def _remove_line_comments(text_lines):
+def _remove_line_comments(text):
     '''
     Removes line comments, but not percent symbols.
     '''
-    line_comment_regex = re.compile(r'(?<!\\)(?:\\\\)*%.*$')
-    return [line_comment_regex.sub('', x) for x in text_lines]
+    line_comment_regex = re.compile(r'(?<!\\)(?:\\\\)*%.*\n')
+    return line_comment_regex.sub(' ', text)
 
 
 def _remove_accents(text):
@@ -159,22 +159,15 @@ def _remove_white_space(text):
     return " ".join(text.split())
 
 
-def latex_normalizer(text, lines=False):
+def latex_normalizer(text):
     '''
-    Takes a string or a list of lines 
-    containing latex syntax, and returns 
-    a string stripped of that syntax. 
-    For example,
+    Takes a string containing latex syntax, 
+    and returns a string stripped of that 
+    syntax. For example,
     "\begin{document} Hi! \end{document}"
-    becomes:
-    "Hi"
+    becomes "Hi"
     '''
-    if lines:
-        text = _remove_line_comments(text)
-        text = [x.rstrip()
-                for x in text
-                if x.rstrip()]
-        text = " ".join(text)
+    text = _remove_line_comments(text)
     text = _remove_accents(text)
     text = _normalize_commands(text)
     text = _remove_environments(text)
@@ -211,15 +204,14 @@ def tex_file_normalizer(path):
             return
 
     '''
-    Stores the lines of the file in a list, and
-    normalizes the result.
+    Opens the tex file, and normalizes the result.
     '''
     with open(path, 'r') as file:
-        text = file.readlines()
-    text = latex_normalizer(text, lines=True)
+        text = file.read()
+    text = latex_normalizer(text)
 
     '''        
-    Writes result to file named original_file_name_normalized.
+    Writes the result to a file named original_file_name_normalized.
     '''
     with open(normalized_path, 'a') as normalized_file:
         normalized_file.write(text)
