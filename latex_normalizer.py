@@ -18,14 +18,14 @@ def _remove_line_comments(text):
     >>> _remove_line_comments('Hi, I do. %comment\nNext line.')
     'Hi, I do.  Next line.'
 
-    >>> _remove_line_comments('Me too. \\% comment\n')
-    'Me too. \\ '
+    >>> _remove_line_comments('Me too. \\\\% comment\n')
+    'Me too. \\\\ '
 
-    >>> _remove_line_comments('0\%')
-    '0\\%'
+    >>> _remove_line_comments('0\\%\n')
+    '0\\%\n'
     '''
-    line_comment_regex = re.compile(r'(?<!\\)(?:\\\\)*%.*\n')
-    return line_comment_regex.sub(' ', text)
+    line_comment_regex = re.compile(r'(?<!\\)((?:\\\\)*)%.*\n')
+    return line_comment_regex.sub(r'\1 ', text)
 
 
 def _remove_accents(text):
