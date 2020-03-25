@@ -28,8 +28,8 @@ def _remove_accents(text):
             'k',
             ]
     letter_accent_regex = re.compile(
-            r'\\(?:' \
-            + '|'.join(letters) \
+            r'\\(?:'
+            + '|'.join(letters)
             + r')(?:\ |{(\w{1,2})})'
             )
     non_letters = [
@@ -42,8 +42,8 @@ def _remove_accents(text):
             r'\.',
             ]
     non_letter_accent_regex = re.compile(
-            r'\\(?:' \
-            + '|'.join(non_letters) \
+            r'\\(?:'
+            + '|'.join(non_letters)
             + r')(?:{(\w)})?'
             )
     output = letter_accent_regex.sub(r'\1', text)
