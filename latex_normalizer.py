@@ -3,7 +3,7 @@ import re
 
 
 def _remove_line_comments(text):
-    '''
+    r'''
     Remove line comments from latex code.
     
     Specifically, this takes all text between % and the next newline,
@@ -11,6 +11,18 @@ def _remove_line_comments(text):
     symbol is preceded by an odd number of back slashes. This is because
     for example "\\\% " is not ignored by the latex compiler. It prints
     a percent symbol on a new line.
+
+    >>> _remove_line_comments('Hi, I do not contain any comments. \n')
+    'Hi, I do not contain any comments. \n'
+
+    >>> _remove_line_comments('Hi, I do. %comment\nNext line.')
+    'Hi, I do.  Next line.'
+
+    >>> _remove_line_comments('Me too. \\% comment\n')
+    'Me too. \\ '
+
+    >>> _remove_line_comments('0\%')
+    '0\\%'
     '''
     line_comment_regex = re.compile(r'(?<!\\)(?:\\\\)*%.*\n')
     return line_comment_regex.sub(' ', text)
@@ -248,3 +260,7 @@ def tex_file_normalizer(path):
     with open(normalized_path, 'a') as normalized_file:
         normalized_file.write(text)
 
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
