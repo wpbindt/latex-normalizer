@@ -101,8 +101,8 @@ def _normalize_commands(text):
     >>> _normalize_commands('\shouldnt{change}')
     '\\shouldnt{change}'
 
-    >>> _normalize_commands('\chapter{One')
-    '\\chapter{One'
+    >>> _normalize_commands('\chapter{On{e}')
+    '\\chapter{On{e}'
 
     >>> _normalize_commands('\chapter{Hyperk\\"{a}hlers}')
     ' Hyperk\\"{a}hlers '
