@@ -26,7 +26,9 @@ def _matching_paren_pos(string, open_paren='{', close_paren='}'):
                 + ') should be '
                 + open_paren)
 
-    # bladibla
+    # Iterating over the string, put the opening brackets encountered
+    # in a stack, and pop it every time a closing bracket occurs.
+    # When the stack is empty, return the position.
     open_parens = []
     for pos, char in enumerate(string):
         if char == open_paren:
