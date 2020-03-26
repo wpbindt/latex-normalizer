@@ -239,12 +239,23 @@ def _strip_environments_labels(text):
 
 
 def _remove_commands(text):
-    '''
+    r'''
     Remove entire commands.
 
     More concretely, this remove all commands and their arguments
     (optional or otherwise). That is, "\a*{b}[c]{d}$ is replaced with
     a single space.
+    >>> _remove_commands('abc')
+    'abc'
+
+    >>> _remove_commands('\command*{baba}[caba]{daba}')
+    ' '
+
+    >>> _remove_commands('\command')
+    ' '
+
+    >>> _remove_commands('\command[option]')
+    ' '
     '''
     command_regex = re.compile(r'''
                         \\\w*(\*)?
