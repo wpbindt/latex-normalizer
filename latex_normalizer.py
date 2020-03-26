@@ -176,15 +176,15 @@ def _normalize_commands(text):
         try:
             delta = _matching_paren_pos(text[open_pos:])
             close_pos = open_pos + delta
-            text = text[: open_pos] \
+            text = text[:open_pos] \
                     + ' ' \
-                    + text[open_pos + 1: close_pos] \
+                    + text[open_pos + 1:close_pos] \
                     + ' ' \
                     + text[close_pos + 1:] 
         except Exception:
             # if the opening bracket is unmatched, only have to replace
             # the opening bracket
-            text = text[: open_pos] \
+            text = text[:open_pos] \
                     +' ' \
                     + text[open_pos + 1:]
 
@@ -249,8 +249,8 @@ def _remove_commands(text):
     >>> _remove_commands('abc')
     'abc'
 
-    >>> _remove_commands('\command*{baba}[caba]{daba}')
-    ' '
+    >>> _remove_commands('\command*{baba}[caba]{daba}a')
+    ' a'
 
     >>> _remove_commands('\command')
     ' '
@@ -258,14 +258,32 @@ def _remove_commands(text):
     >>> _remove_commands('\command[option]')
     ' '
     '''
-    command_regex = re.compile(r'''
-                        \\\w*(\*)?
-                        ({(?:[^}{]+|{(?:[^}{]+|{[^}{]*})*})*}
-                        |\[(?:[^\]\[]+|\[(?:[^\]\[]+|\[[^\]\[]*\])*\])*\])*
-                               ''',
-                               re.VERBOSE)
-    return command_regex.sub(' ', text)
-
+    # Matches anything of the form '\word*' and '\word'.
+    command_regex = re.compile(r'\\\w*\*?')
+    if not command_regex.search(text):
+        return text
+    paren_dict = {
+            '{': '}',
+            '[': ']',
+            }
+    # Split the input at the first occurring command, replacing the
+    # command by a space.
+    broken_text = command_regex.split(text, maxsplit=1)
+    head = broken_text[0] + ' '
+    tail = broken_text[1]
+    # Iteratively remove anything between between brackets in tail.
+    while tail:
+        if tail[0] in paren_dict.keys():
+            close_pos = _matching_paren_pos(
+                    tail,
+                    open_paren=tail[0],
+                    close_paren=paren_dict[tail[0]]
+                    )
+            tail = tail[close_pos + 1:]
+        else:
+            break
+    return head + _remove_commands(tail)
+    
 
 def _remove_equations(text):
     '''
