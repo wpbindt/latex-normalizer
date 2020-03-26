@@ -7,7 +7,7 @@ def _matching_paren_pos(string, open_paren='{', close_paren='}'):
     Find the position of the parenthesis closing the one a string
     starts with.
 
-    >>> _matching_paren_pos('{{a}{}}')
+    >>> _matching_paren_pos('{{a}{}}b')
     6
 
     >>> _matching_paren_pos('a')
@@ -140,10 +140,13 @@ def _normalize_commands(text):
     '\\shouldnt{change}'
 
     >>> _normalize_commands('\chapter{On{e}')
-    '\\chapter{On{e}'
+    ' On{e}'
 
     >>> _normalize_commands('\chapter{Hyperk\\"{a}hlers}')
     ' Hyperk\\"{a}hlers '
+
+    >>> _normalize_commands('\chapter{One} \section{two}')
+    ' One   two '
     '''
     normalized_commands = [
         'subsubsection',
@@ -158,13 +161,30 @@ def _normalize_commands(text):
         'textit',
         'textrm',
     ]
-    normalized_commands_regex = "(" \
-                                + "|".join(normalized_commands) \
-                                + ")"
-    command_regex = re.compile(r'\\'
-                               + normalized_commands_regex
-                               + r'{((?:[^}{]+|{(?:[^}{]+|{[^}{]*})*})*)}')
-    return command_regex.sub(r' \2 ', text)
+    normalized_commands_regex = re.compile(
+        r'\\('
+        + '|'.join(normalized_commands)
+        + ')'
+        )
+    matches = normalized_commands_regex.finditer(text)
+    for match in matches:
+        _, open_pos = match.span()
+        try:
+            delta = _matching_paren_pos(text[open_pos:])
+            close_pos = open_pos + delta
+            text = text[: open_pos] \
+                    + ' ' \
+                    + text[open_pos + 1: close_pos] \
+                    + ' ' \
+                    + text[close_pos + 1:] 
+        except Exception:
+            # if the opening bracket is unmatched, only have to replace
+            # the opening bracket
+            text = text[: open_pos] \
+                    +' ' \
+                    + text[open_pos + 1:]
+
+    return normalized_commands_regex.sub('',text)
 
 
 def _remove_environments(text):
