@@ -343,8 +343,8 @@ def latex_normalizer(text):
     text = _normalize_commands(text)
     text = _remove_environments(text)
     text = _strip_environments_labels(text)
-    text = _remove_commands(text)
     text = _remove_equations(text)
+    text = _remove_commands(text)
     text = _remove_special_characters(text)
     text = _remove_white_space(text)
     return text
