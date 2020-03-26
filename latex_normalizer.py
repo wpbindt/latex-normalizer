@@ -174,6 +174,9 @@ def _normalize_commands(text):
     for match in matches:
         _, open_pos = match.span()
         try:
+            # Try to find the bracket matching the bracket at the end
+            # of the command. If successful, replace both by a single
+            # space.
             delta = _matching_paren_pos(text[open_pos:])
             close_pos = open_pos + delta
             text = text[:open_pos] \
@@ -185,7 +188,7 @@ def _normalize_commands(text):
             # if the opening bracket is unmatched, only have to replace
             # the opening bracket
             text = text[:open_pos] \
-                    +' ' \
+                    + ' ' \
                     + text[open_pos + 1:]
 
     normalized_commands_regex = re.compile(
@@ -257,6 +260,9 @@ def _remove_commands(text):
 
     >>> _remove_commands('\command[option]')
     ' '
+
+    >>> _remove_commands('a \command and \\another{one}')
+    'a   and  '
     '''
     # Matches anything of the form '\word*' and '\word'.
     command_regex = re.compile(r'\\\w*\*?')
