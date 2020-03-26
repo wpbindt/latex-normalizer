@@ -2,6 +2,42 @@ import os.path
 import re
 
 
+def _matching_paren_pos(string, open_paren='{', close_paren='}'):
+    r'''
+    Find the position of the parenthesis closing the one a string
+    starts with.
+
+    >>> _matching_paren_pos('{{a}{}}')
+    6
+
+    >>> _matching_paren_pos('a')
+    Traceback (most recent call last):
+        ...
+    Exception: Leading character (a) should be {
+
+    >>> _matching_paren_pos('{{}')
+    Traceback (most recent call last):
+        ...
+    Exception: Unmatched parenthesis
+    '''
+    if string[0] != open_paren:
+        raise Exception('Leading character ('
+                + string[0]
+                + ') should be '
+                + open_paren)
+
+    # bladibla
+    open_parens = []
+    for pos, char in enumerate(string):
+        if char == open_paren:
+            open_parens.append(char)
+        elif char == close_paren:
+            open_parens.pop()
+            if not open_parens:
+                return pos
+    raise Exception('Unmatched parenthesis')
+
+
 def _remove_line_comments(text):
     r'''
     Remove line comments from latex code.
