@@ -13,15 +13,15 @@ def _matching_paren_pos(string, open_paren='{', close_paren='}'):
     >>> _matching_paren_pos('a')
     Traceback (most recent call last):
         ...
-    Exception: Leading character (a) should be {
+    Exception: leading character (a) should be {
 
     >>> _matching_paren_pos('{{}')
     Traceback (most recent call last):
         ...
-    Exception: Unmatched parenthesis
+    Exception: unmatched parenthesis
     '''
     if string[0] != open_paren:
-        raise Exception('Leading character ('
+        raise Exception('leading character ('
                 + string[0]
                 + ') should be '
                 + open_paren)
@@ -37,7 +37,7 @@ def _matching_paren_pos(string, open_paren='{', close_paren='}'):
             open_parens.pop()
             if not open_parens:
                 return pos
-    raise Exception('Unmatched parenthesis')
+    raise Exception('unmatched parenthesis')
 
 
 def _remove_line_comments(text):
@@ -245,6 +245,7 @@ def _remove_commands(text):
     More concretely, this remove all commands and their arguments
     (optional or otherwise). That is, "\a*{b}[c]{d}$ is replaced with
     a single space.
+
     >>> _remove_commands('abc')
     'abc'
 
@@ -343,16 +344,12 @@ def tex_file_normalizer(path):
         else:
             return
 
-    '''
-    Opens the tex file, and normalizes the result.
-    '''
+    # Opens the tex file, and normalizes the result.
     with open(path, 'r') as file:
         text = file.read()
     text = latex_normalizer(text)
 
-    '''        
-    Writes the result to a file named original_file_name_normalized.
-    '''
+    # Writes the result to a file named original_file_name_normalized.
     with open(normalized_path, 'a') as normalized_file:
         normalized_file.write(text)
 
