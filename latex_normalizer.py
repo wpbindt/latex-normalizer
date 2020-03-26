@@ -261,6 +261,9 @@ def _remove_commands(text):
     >>> _remove_commands('\command[option]')
     ' '
 
+    >>> _remove_commands('\command{argument')
+    ' argument'
+
     >>> _remove_commands('a \command and \\another{one}')
     'a   and  '
     '''
@@ -280,12 +283,15 @@ def _remove_commands(text):
     # Iteratively remove anything between between brackets in tail.
     while tail:
         if tail[0] in paren_dict.keys():
-            close_pos = _matching_paren_pos(
-                    tail,
-                    open_paren=tail[0],
-                    close_paren=paren_dict[tail[0]]
-                    )
-            tail = tail[close_pos + 1:]
+            try:
+                close_pos = _matching_paren_pos(
+                        tail,
+                        open_paren=tail[0],
+                        close_paren=paren_dict[tail[0]]
+                        )
+                tail = tail[close_pos + 1:]
+            except Exception:
+                tail = tail[1:]
         else:
             break
     return head + _remove_commands(tail)
