@@ -134,7 +134,8 @@ def _normalize_commands(text):
         text,
         textit,
         textrm.
-    This is adapted from remove_command, from arxiv-latex-cleaner.
+    If no argument is passed to the command, the command is replaced
+    with an empty string.
 
     >>> _normalize_commands('\shouldnt{change}')
     '\\shouldnt{change}'
@@ -147,6 +148,9 @@ def _normalize_commands(text):
 
     >>> _normalize_commands('\chapter{One} \section{two}')
     ' One   two '
+
+    >>> _normalize_commands('\sectionheader')
+    '\\sectionheader'
     '''
     normalized_commands = [
         'subsubsection',
@@ -164,7 +168,7 @@ def _normalize_commands(text):
     normalized_commands_regex = re.compile(
         r'\\('
         + '|'.join(normalized_commands)
-        + ')'
+        + ')(?={)'
         )
     matches = normalized_commands_regex.finditer(text)
     for match in matches:
@@ -184,6 +188,11 @@ def _normalize_commands(text):
                     +' ' \
                     + text[open_pos + 1:]
 
+    normalized_commands_regex = re.compile(
+        r'\\('
+        + '|'.join(normalized_commands)
+        + ')(?= )'
+        )
     return normalized_commands_regex.sub('',text)
 
 
