@@ -276,7 +276,8 @@ def _remove_commands(text):
             '[': ']',
             }
     # Split the input at the first occurring command, replacing the
-    # command by a space.
+    # command by a space. Should only do one split at a time, because
+    # input like "\command{\command}" is possible.
     broken_text = command_regex.split(text, maxsplit=1)
     head = broken_text[0] + ' '
     tail = broken_text[1]
