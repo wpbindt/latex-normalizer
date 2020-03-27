@@ -22,9 +22,9 @@ def _matching_paren_pos(string, open_paren='{', close_paren='}'):
     '''
     if string[0] != open_paren:
         raise Exception('leading character ('
-                + string[0]
-                + ') should be '
-                + open_paren)
+                        + string[0]
+                        + ') should be '
+                        + open_paren)
 
     # Iterating over the string, put the opening brackets encountered
     # in a stack, and pop it every time a closing bracket occurs.
@@ -43,7 +43,7 @@ def _matching_paren_pos(string, open_paren='{', close_paren='}'):
 def _remove_line_comments(text):
     r'''
     Remove line comments from latex code.
-    
+
     Specifically, this takes all text between % and the next newline,
     and replaces it with a single space. This is not done if the percent
     symbol is preceded by an odd number of back slashes. This is because
@@ -71,7 +71,7 @@ def _remove_accents(text):
     Replace latex code for diacritics with the empty string.
 
     Replace letters with diacritics by their non-diacritical
-    counterpart. For example, hyperk\"ahler becomes hyperkahler. 
+    counterpart. For example, hyperk\"ahler becomes hyperkahler.
     Moreover, hyperk\"{a}hler becomes hyperkahler too.
 
     >>> _remove_accents('Nothing happens to me')
@@ -180,10 +180,10 @@ def _normalize_commands(text):
             delta = _matching_paren_pos(text[open_pos:])
             close_pos = open_pos + delta
             text = text[:open_pos] \
-                    + ' ' \
-                    + text[open_pos + 1:close_pos] \
-                    + ' ' \
-                    + text[close_pos + 1:] 
+                + ' ' \
+                + text[open_pos + 1:close_pos] \
+                + ' ' \
+                + text[close_pos + 1:]
         except Exception:
             # if the opening bracket is unmatched, only have to replace
             # the opening bracket
@@ -196,14 +196,14 @@ def _normalize_commands(text):
         + '|'.join(normalized_commands)
         + ')(?= )'
         )
-    return normalized_commands_regex.sub('',text)
+    return normalized_commands_regex.sub('', text)
 
 
 def _remove_environments(text):
     r'''
     Remove a specified list of latex environments.
 
-    Specifically, replace "\begin{environment} contents 
+    Specifically, replace "\begin{environment} contents
     \end{environment}" with the empty string, where environment is
     an environment on the list
         comment,
@@ -218,16 +218,16 @@ def _remove_environments(text):
         r'comment',
         r'figure',
         r'tikzpicture',
-        r'equation(\*)?',
-        r'multline(\*)?',
-        r'align(\*)?',
-        r'gather(\*)?',
+        r'equation\*?',
+        r'multline\*?',
+        r'align\*?',
+        r'gather\*?',
     ]
     for env in removed_env:
         env_regex = re.compile(r'\\begin{'
                                + env
                                + r'}[\s\S]*?\\end{'
-                               + env 
+                               + env
                                + r'}')
         text = env_regex.sub('', text)
     return text
@@ -296,7 +296,7 @@ def _remove_commands(text):
         else:
             break
     return head + _remove_commands(tail)
-    
+
 
 def _remove_equations(text):
     '''
@@ -311,7 +311,7 @@ def _remove_equations(text):
                     ((?<!\\)\${1,2}[\s\S]+?(?<!\\)\${1,2})
                     |((?<!\\)\\\[[\s\S]*?(?<!\\)\\\])
                     |((?<!\\)\\\([\s\S]*?(?<!\\)\\\))
-                           ''', 
+                           ''',
                            re.VERBOSE)
     return eqn_regex.sub(' ', text)
 
@@ -333,8 +333,8 @@ def _remove_white_space(text):
 
 def latex_normalizer(text):
     '''
-    Take a string containing latex syntax, 
-    and returns a string stripped of that 
+    Take a string containing latex syntax,
+    and returns a string stripped of that
     syntax. For example,
     "\begin{document} Hi! \end{document}"
     becomes "Hi"
@@ -350,6 +350,7 @@ def latex_normalizer(text):
     text = _remove_white_space(text)
     return text
 
+
 def tex_file_normalizer(path):
     '''
     Takes path to original tex file, "original"
@@ -360,13 +361,13 @@ def tex_file_normalizer(path):
     directory, file_name = os.path.split(abs_path)
     normalized_file_name = file_name + '_normalized'
     normalized_path = directory \
-                    + os.path.sep \
-                    + normalized_file_name
+        + os.path.sep \
+        + normalized_file_name
     while os.path.isfile(normalized_path):
         print('A file with the name '
-             + normalized_file_name
-             + ' already exists. \n'
-             + 'Please enter a new filename (or press <RETURN> to exit): ')
+              + normalized_file_name
+              + ' already exists. \n'
+              + 'Please enter a new filename (or press <RETURN> to exit): ')
         normalized_file_name = input()
         if normalized_file_name:
             normalized_path = directory \
@@ -388,3 +389,4 @@ def tex_file_normalizer(path):
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
+
