@@ -2,7 +2,8 @@ import os.path
 import re
 
 
-def _matching_paren_pos(string, open_paren='{', close_paren='}'):
+def _matching_paren_pos(string: str, open_paren: str='{', 
+                        close_paren: str='}') -> int:
     r'''
     Find the position of the parenthesis closing the one a string
     starts with.
@@ -38,7 +39,7 @@ def _matching_paren_pos(string, open_paren='{', close_paren='}'):
     raise Exception('unmatched parenthesis')
 
 
-def _remove_line_comments(text):
+def _remove_line_comments(text: str) -> str:
     r'''
     Remove line comments from latex code.
 
@@ -64,7 +65,7 @@ def _remove_line_comments(text):
     return line_comment_regex.sub(r'\1 ', text)
 
 
-def _remove_accents(text):
+def _remove_accents(text: str) -> str:
     r'''
     Replace latex code for diacritics with the empty string.
 
@@ -115,7 +116,7 @@ def _remove_accents(text):
     return output
 
 
-def _normalize_commands(text):
+def _normalize_commands(text: str) -> str:
     r'''
     Replace a list of specified latex commands with their arguments.
 
@@ -197,7 +198,7 @@ def _normalize_commands(text):
     return normalized_commands_regex.sub('', text)
 
 
-def _remove_environments(text):
+def _remove_environments(text: str) -> str:
     r'''
     Remove a specified list of latex environments.
 
@@ -231,7 +232,7 @@ def _remove_environments(text):
     return text
 
 
-def _strip_environments_labels(text):
+def _strip_environments_labels(text: str) -> str:
     '''
     Remove environment delimiters and labels.
     '''
@@ -239,7 +240,7 @@ def _strip_environments_labels(text):
     return env_regex.sub(' ', text)
 
 
-def _remove_commands(text):
+def _remove_commands(text: str) -> str:
     r'''
     Remove entire commands.
 
@@ -296,7 +297,7 @@ def _remove_commands(text):
     return head + _remove_commands(tail)
 
 
-def _remove_equations(text):
+def _remove_equations(text: str) -> str:
     '''
     Remove inline and display equations.
 
@@ -314,7 +315,7 @@ def _remove_equations(text):
     return eqn_regex.sub(' ', text)
 
 
-def _remove_special_characters(text):
+def _remove_special_characters(text: str) -> str:
     '''
     Replace characters that are not letters or whitespaces by a space.
     '''
@@ -322,14 +323,14 @@ def _remove_special_characters(text):
     return non_alphabet_regex.sub(' ', text)
 
 
-def _remove_white_space(text):
+def _remove_white_space(text: str) -> str:
     '''
     Replace white space (including tabs and newlines) by a single space.
     '''
     return " ".join(text.split())
 
 
-def latex_normalizer(text):
+def latex_normalizer(text: str) -> str:
     '''
     Take a string containing latex syntax,
     and returns a string stripped of that
@@ -349,7 +350,7 @@ def latex_normalizer(text):
     return text
 
 
-def tex_file_normalizer(path):
+def tex_file_normalizer(path: str) -> None:
     '''
     Takes path to original tex file, "original"
     and writes normalized version to "original_normalized"
@@ -357,18 +358,14 @@ def tex_file_normalizer(path):
     '''
     abs_path = os.path.realpath(path)
     directory, file_name = os.path.split(abs_path)
-    normalized_file_name = file_name + '_normalized'
-    normalized_path = directory \
-        + os.path.sep \
-        + normalized_file_name
+    normalized_file_name = f'{file_name}_normalized'
+    normalized_path = directory + os.path.sep + normalized_file_name
     while os.path.isfile(normalized_path):
         print(f'A file with the name {normalized_file_name} already exists. \n'
               'Please enter a new filename (or press <RETURN> to exit): ')
         normalized_file_name = input()
         if normalized_file_name:
-            normalized_path = directory \
-                            + os.path.sep \
-                            + normalized_file_name
+            normalized_path = directory + os.path.sep + normalized_file_name
         else:
             return
 
