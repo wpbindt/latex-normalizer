@@ -21,7 +21,7 @@ def _matching_paren_pos(string, open_paren='{', close_paren='}'):
     Exception: unmatched parenthesis
     '''
     if string[0] != open_paren:
-        raise Exception(f'leading character ({string[0]})' 
+        raise Exception(f'leading character ({string[0]}) ' 
                         f'should be {open_paren}')
 
     # Iterating over the string, put the opening brackets encountered
