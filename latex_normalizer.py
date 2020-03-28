@@ -21,10 +21,8 @@ def _matching_paren_pos(string, open_paren='{', close_paren='}'):
     Exception: unmatched parenthesis
     '''
     if string[0] != open_paren:
-        raise Exception('leading character ('
-                        + string[0]
-                        + ') should be '
-                        + open_paren)
+        raise Exception(f'leading character ({string[0]})' 
+                        f'should be {open_paren}')
 
     # Iterating over the string, put the opening brackets encountered
     # in a stack, and pop it every time a closing bracket occurs.
@@ -364,10 +362,8 @@ def tex_file_normalizer(path):
         + os.path.sep \
         + normalized_file_name
     while os.path.isfile(normalized_path):
-        print('A file with the name '
-              + normalized_file_name
-              + ' already exists. \n'
-              + 'Please enter a new filename (or press <RETURN> to exit): ')
+        print(f'A file with the name {normalized_file_name} already exists. \n'
+              'Please enter a new filename (or press <RETURN> to exit): ')
         normalized_file_name = input()
         if normalized_file_name:
             normalized_path = directory \
