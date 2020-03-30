@@ -309,7 +309,7 @@ def _remove_equations(text: str) -> str:
     >>> _remove_equations(r'No equation, \$3.50, \$2')
     'No equation, \\$3.50, \\$2'
 
-    >>> _remove_equations('An equation $1 + 1$ should go')
+    >>> _remove_equations('An equation $1 + 1\$$ should go')
     'An equation   should go'
 
     >>> _remove_equations('Display equations $$\n 1 + 1 \n $$ too')
@@ -321,11 +321,14 @@ def _remove_equations(text: str) -> str:
     >>> _remove_equations(r'This is an actual equation: \[1 + 1 = \$\]')
     'This is an actual equation:  '
 
-    >>> _remove_equations('$1 + 1$$1 + 1$')
+    >>> _remove_equations('$1 + 1$$$1 + 1$$')
     '  '
     '''
+    #TODO Get rid of the regex, possibly by writing a bracket-matching
+    # function. This should automatically fix the two doctests that fail.
     eqn_regex = re.compile(r'''
-                    ((?<!\\)\${1,2}[\s\S]+?(?<!\\)\${1,2})
+                    ((?<!\\)(?<!\$)\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$(?!\$))
+                    |((?<!\\)(?<!\$)\$\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$\$(?!\$))
                     |((?<!\\)\\\[[\s\S]*?(?<!\\)\\\])
                     |((?<!\\)\\\([\s\S]*?(?<!\\)\\\))
                            ''',
