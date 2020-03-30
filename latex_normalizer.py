@@ -320,6 +320,9 @@ def _remove_equations(text: str) -> str:
 
     >>> _remove_equations(r'This is an actual equation: \[1 + 1 = \$\]')
     'This is an actual equation:  '
+
+    >>> _remove_equations('$1 + 1$$1 + 1$')
+    '  '
     '''
     eqn_regex = re.compile(r'''
                     ((?<!\\)\${1,2}[\s\S]+?(?<!\\)\${1,2})
