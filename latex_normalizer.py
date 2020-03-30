@@ -298,13 +298,28 @@ def _remove_commands(text: str) -> str:
 
 
 def _remove_equations(text: str) -> str:
-    '''
+    r'''
     Remove inline and display equations.
 
     Removes inline equations delimited by $ and \(, and removes display
     equations delimited by $$ and \[. Ignores dollar signs preceded by
     a single backslash, as the latex compiler renders that as a dollar
     sign.
+
+    >>> _remove_equations(r'No equation, \$3.50, \$2')
+    'No equation, \\$3.50, \\$2'
+
+    >>> _remove_equations('An equation $1 + 1$ should go')
+    'An equation   should go'
+
+    >>> _remove_equations('Display equations $$\n 1 + 1 \n $$ too')
+    'Display equations   too'
+
+    >>> _remove_equations(r'These too: \(1 + 1\)')
+    'These too:  '
+
+    >>> _remove_equations(r'This is an actual equation: \[1 + 1 = \$\]')
+    'This is an actual equation:  '
     '''
     eqn_regex = re.compile(r'''
                     ((?<!\\)\${1,2}[\s\S]+?(?<!\\)\${1,2})
