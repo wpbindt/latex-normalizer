@@ -1,5 +1,7 @@
+from itertools import count
 import os.path
 import re
+from typing import List, Dict, Tuple
 
 
 def _matching_paren_pos(string: str, open_paren: str='{', 
@@ -37,6 +39,40 @@ def _matching_paren_pos(string: str, open_paren: str='{',
             if not open_parens:
                 return pos
     raise Exception('unmatched parenthesis')
+
+
+def _matching_brackets_digraph(text:str,
+    brackets:Dict[str,str]) -> Dict[str, List[Tuple[int, int]]]:
+    r'''
+    Match two-character brackets in a string, and return lists of pairs
+    of positions of the matching brackets, indexed in a dictionary by
+    bracket type.
+
+    Positional arguments:
+    text -- The string where we want to find the matching brackets. 
+    brackets -- Dictionary whose keys are the closing brackets, and
+    whose values are the opening brackets.
+
+    >>> _matching_brackets_digraph('abcd', {r'\)':r'\('})
+    {'\\)': []}
+    '''
+    opening_brackets = []
+    matches = {close_bracket:[]
+               for close_bracket in brackets.keys()}
+    digraphs = [a + b for a, b in zip(text, text[1:])]
+    for pos, digraph in zip(count(), digraphs):
+        if digraph in brackets.values():
+            opening_brackets.append((digraph, pos))
+        elif digraph in brackets.keys():
+            try:
+                open_bracket, open_pos = opening_brackets.pop()
+                if open_bracket == brackets[digraph]:
+                    matches[digraph].append((open_pos, pos + 1))
+                else:
+                    raise Exception('brackets are unbalanced')
+            except IndexError:
+                raise Exception('parens are unbalanced')
+    return matches
 
 
 def _remove_line_comments(text: str) -> str:
