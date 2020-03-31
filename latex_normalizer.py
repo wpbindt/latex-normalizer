@@ -53,8 +53,32 @@ def _matching_brackets_digraph(text:str,
     brackets -- Dictionary whose keys are the closing brackets, and
     whose values are the opening brackets.
 
-    >>> _matching_brackets_digraph('abcd', {r'\)':r'\('})
+    >>> _matching_brackets_digraph('abcd', {r'\)': r'\('})
     {'\\)': []}
+
+    >>> _matching_brackets_digraph(r'\( \)', {r'\)': r'\('})
+    {'\\)': [(0, 4)]}
+
+    >>> _matching_brackets_digraph(r'\(\(\)\)', {r'\)': r'\('})
+    {'\\)': [(2, 5), (0, 7)]}
+
+    >>> _matching_brackets_digraph(r'\(\[\]\)', {r'\)': r'\(', r'\]': r'\['})
+    {'\\)': [(0, 7)], '\\]': [(2, 5)]}
+
+    >>> _matching_brackets_digraph(r'\(\[\)\]', {r'\)': r'\(', r'\]': r'\['})
+    Traceback (most recent call last):
+        ...
+    Exception: brackets are unbalanced
+
+    >>> _matching_brackets_digraph(r'\(', {r'\)': r'\('})
+    Traceback (most recent call last):
+        ...
+    Exception: brackets are unbalanced
+
+    >>> _matching_brackets_digraph(r'\)', {r'\)': r'\('})
+    Traceback (most recent call last):
+        ...
+    Exception: brackets are unbalanced
     '''
     opening_brackets = []
     matches = {close_bracket:[]
@@ -71,8 +95,11 @@ def _matching_brackets_digraph(text:str,
                 else:
                     raise Exception('brackets are unbalanced')
             except IndexError:
-                raise Exception('parens are unbalanced')
-    return matches
+                raise Exception('brackets are unbalanced')
+    if opening_brackets:
+        raise Exception('brackets are unbalanced')
+    else:
+        return matches
 
 
 def _remove_line_comments(text: str) -> str:
