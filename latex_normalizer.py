@@ -386,7 +386,7 @@ def _remove_equations(text: str) -> str:
     >>> _remove_equations('$ back $$ to $$ back $')
     '   '
 
-    >>> _remove_equations('$$ $ nested $ $$')
+    >>> _remove_equations(r'$$ \text{$nested$} $$')
     ' '
 
     >>> _remove_equations('$ back $$$ to back $$')
