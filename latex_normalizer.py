@@ -41,7 +41,7 @@ def _matching_paren_pos(string: str, open_paren: str='{',
     raise Exception('unmatched parenthesis')
 
 
-def _matching_brackets_digraph(text:str,
+def _matching_brackets_digram(text:str,
     brackets:Dict[str,str]) -> Dict[str, List[Tuple[int, int]]]:
     r'''
     Match two-character brackets in a string, and return lists of pairs
@@ -53,29 +53,29 @@ def _matching_brackets_digraph(text:str,
     brackets -- Dictionary whose keys are the closing brackets, and
     whose values are the opening brackets.
 
-    >>> _matching_brackets_digraph('abcd', {r'\)': r'\('})
+    >>> _matching_brackets_digram('abcd', {r'\)': r'\('})
     {'\\)': []}
 
-    >>> _matching_brackets_digraph(r'\( \)', {r'\)': r'\('})
+    >>> _matching_brackets_digram(r'\( \)', {r'\)': r'\('})
     {'\\)': [(0, 4)]}
 
-    >>> _matching_brackets_digraph(r'\(\(\)\)', {r'\)': r'\('})
+    >>> _matching_brackets_digram(r'\(\(\)\)', {r'\)': r'\('})
     {'\\)': [(2, 5), (0, 7)]}
 
-    >>> _matching_brackets_digraph(r'\(\[\]\)', {r'\)': r'\(', r'\]': r'\['})
+    >>> _matching_brackets_digram(r'\(\[\]\)', {r'\)': r'\(', r'\]': r'\['})
     {'\\)': [(0, 7)], '\\]': [(2, 5)]}
 
-    >>> _matching_brackets_digraph(r'\(\[\)\]', {r'\)': r'\(', r'\]': r'\['})
+    >>> _matching_brackets_digram(r'\(\[\)\]', {r'\)': r'\(', r'\]': r'\['})
     Traceback (most recent call last):
         ...
     Exception: brackets are unbalanced
 
-    >>> _matching_brackets_digraph(r'\(', {r'\)': r'\('})
+    >>> _matching_brackets_digram(r'\(', {r'\)': r'\('})
     Traceback (most recent call last):
         ...
     Exception: brackets are unbalanced
 
-    >>> _matching_brackets_digraph(r'\)', {r'\)': r'\('})
+    >>> _matching_brackets_digram(r'\)', {r'\)': r'\('})
     Traceback (most recent call last):
         ...
     Exception: brackets are unbalanced
@@ -83,15 +83,15 @@ def _matching_brackets_digraph(text:str,
     opening_brackets = []
     matches = {close_bracket:[]
                for close_bracket in brackets.keys()}
-    digraphs = [a + b for a, b in zip(text, text[1:])]
-    for pos, digraph in zip(count(), digraphs):
-        if digraph in brackets.values():
-            opening_brackets.append((digraph, pos))
-        elif digraph in brackets.keys():
+    digrams = [a + b for a, b in zip(text, text[1:])]
+    for pos, digram in zip(count(), digrams):
+        if digram in brackets.values():
+            opening_brackets.append((digram, pos))
+        elif digram in brackets.keys():
             try:
                 open_bracket, open_pos = opening_brackets.pop()
-                if open_bracket == brackets[digraph]:
-                    matches[digraph].append((open_pos, pos + 1))
+                if open_bracket == brackets[digram]:
+                    matches[digram].append((open_pos, pos + 1))
                 else:
                     raise Exception('brackets are unbalanced')
             except IndexError:
