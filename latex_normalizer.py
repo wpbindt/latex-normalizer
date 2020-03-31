@@ -1,4 +1,3 @@
-from itertools import count
 import os.path
 import re
 from typing import List, Dict, Tuple
@@ -41,8 +40,8 @@ def _matching_paren_pos(string: str, open_paren: str='{',
     raise Exception('unmatched parenthesis')
 
 
-def _matching_brackets_digram(text:str,
-    brackets:Dict[str,str]) -> Dict[str, List[Tuple[int, int]]]:
+def _matching_brackets_digram(text: str,
+    brackets: Dict[str,str]) -> Dict[str, List[Tuple[int, int]]]:
     r'''
     Match two-character brackets in a string, and return lists of pairs
     of positions of the matching brackets, indexed in a dictionary by
@@ -84,7 +83,7 @@ def _matching_brackets_digram(text:str,
     matches = {close_bracket:[]
                for close_bracket in brackets.keys()}
     digrams = [a + b for a, b in zip(text, text[1:])]
-    for pos, digram in zip(count(), digrams):
+    for pos, digram in enumerate(digrams):
         if digram in brackets.values():
             opening_brackets.append((digram, pos))
         elif digram in brackets.keys():
