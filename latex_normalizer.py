@@ -266,7 +266,7 @@ def _remove_commands(text: str) -> str:
     >>> _remove_commands('a \command and \\another{one}')
     'a   and  '
     '''
-    # TODO: get rid of recursion, add large test file
+    # TODO: clean this up
     # Matches anything of the form '\word*' and '\word'.
     command_regex = re.compile(r'\\\w*\*?')
     if not command_regex.search(text):
@@ -281,8 +281,8 @@ def _remove_commands(text: str) -> str:
     # adding the remainder to head.
     while tail:
         # Split the tail at the first occurring command, replacing the
-        # command by a space. Should only do one split at a time, because
-        # input like "\command{\command}" is possible.
+        # command by a space. Should only do one split at a time, 
+        # because input like "\command{\command}" is possible.
         broken_text = command_regex.split(tail, maxsplit=1)
         if len(broken_text) == 1:
             head += broken_text[0]
