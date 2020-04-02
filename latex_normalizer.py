@@ -266,6 +266,7 @@ def _remove_commands(text: str) -> str:
     >>> _remove_commands('a \command and \\another{one}')
     'a   and  '
     '''
+    # TODO: get rid of recursion, add large test file
     # Matches anything of the form '\word*' and '\word'.
     command_regex = re.compile(r'\\\w*\*?')
     if not command_regex.search(text):
@@ -274,27 +275,39 @@ def _remove_commands(text: str) -> str:
             '{': '}',
             '[': ']',
             }
-    # Split the input at the first occurring command, replacing the
-    # command by a space. Should only do one split at a time, because
-    # input like "\command{\command}" is possible.
-    broken_text = command_regex.split(text, maxsplit=1)
-    head = broken_text[0] + ' '
-    tail = broken_text[1]
-    # Iteratively remove anything between between brackets in tail.
+    head = ''
+    tail = text
+    # Iteratively remove anything between between brackets in tail,
+    # adding the remainder to head.
     while tail:
-        if tail[0] in paren_dict.keys():
-            try:
-                close_pos = _matching_paren_pos(
-                        tail,
-                        open_paren=tail[0],
-                        close_paren=paren_dict[tail[0]]
-                        )
-                tail = tail[close_pos + 1:]
-            except Exception:
-                tail = tail[1:]
-        else:
+        # Split the tail at the first occurring command, replacing the
+        # command by a space. Should only do one split at a time, because
+        # input like "\command{\command}" is possible.
+        broken_text = command_regex.split(tail, maxsplit=1)
+        if len(broken_text) == 1:
+            head += broken_text[0]
             break
-    return head + _remove_commands(tail)
+        head += broken_text[0] + ' '
+        tail = broken_text[1]
+        while True:
+            if not tail:
+                break
+            elif tail[0] in paren_dict.keys():
+                try:
+                    close_pos = _matching_paren_pos(
+                            tail,
+                            open_paren=tail[0],
+                            close_paren=paren_dict[tail[0]]
+                            )
+                    tail = tail[close_pos + 1:]
+                # If the opening bracket is unmatched, an exception is
+                # raised and we only remove the opening bracket.
+                except Exception:
+                    tail = tail[1:]
+                    break
+            else:
+                break
+    return head
 
 
 def _remove_equations(text: str) -> str:
