@@ -266,22 +266,20 @@ def _remove_commands(text: str) -> str:
     >>> _remove_commands('a \command and \\another{one}')
     'a   and  '
     '''
-    # TODO: clean this up
-    # Matches anything of the form '\word*' and '\word'.
-    command_regex = re.compile(r'\\\w*\*?')
-    if not command_regex.search(text):
-        return text
+    # This dictionary will be used as input for _matching_paren_pos
+    # later.
     paren_dict = {
             '{': '}',
             '[': ']',
             }
+    # The next regex matches anything of the form '\word*' and '\word'.
+    command_regex = re.compile(r'\\\w*\*?')
+
     head = ''
     tail = text
-    # Iteratively remove anything between between brackets in tail,
-    # adding the remainder to head.
     while tail:
         # Split the tail at the first occurring command, replacing the
-        # command by a space. Should only do one split at a time, 
+        # command by a space. Should only do one split at a time,
         # because input like "\command{\command}" is possible.
         broken_text = command_regex.split(tail, maxsplit=1)
         if len(broken_text) == 1:
@@ -289,10 +287,10 @@ def _remove_commands(text: str) -> str:
             break
         head += broken_text[0] + ' '
         tail = broken_text[1]
-        while True:
-            if not tail:
-                break
-            elif tail[0] in paren_dict.keys():
+        # Iteratively remove everything between consecutive brackets in
+        # tail.
+        while tail:
+            if tail[0] in paren_dict.keys():
                 try:
                     close_pos = _matching_paren_pos(
                             tail,
@@ -300,11 +298,14 @@ def _remove_commands(text: str) -> str:
                             close_paren=paren_dict[tail[0]]
                             )
                     tail = tail[close_pos + 1:]
-                # If the opening bracket is unmatched, an exception is
-                # raised and we only remove the opening bracket.
+                # If the opening bracket is unmatched, an exception
+                # is raised and we only remove the opening bracket,
+                # and we go back to searching for a command.
                 except Exception:
                     tail = tail[1:]
                     break
+        # If the leading character of tail is not an opening bracket,
+        # go back to searching for a command.
             else:
                 break
     return head
