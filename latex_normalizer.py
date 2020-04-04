@@ -2,6 +2,8 @@ import os.path
 import re
 from typing import List, Dict, Tuple
 
+#TODO deal with @
+# for an example, see 0705.1375
 
 def _matching_paren_pos(string: str, open_paren: str='{', 
                         close_paren: str='}') -> int:
@@ -327,6 +329,9 @@ def _remove_commands(text: str) -> str:
 
     >>> _remove_commands('a \command and \\another{one}')
     'a   and  '
+
+    >>> _remove_commands('\@command')
+    ' '
     '''
     # This dictionary will be used as input for _matching_paren_pos
     # later.
@@ -335,7 +340,7 @@ def _remove_commands(text: str) -> str:
             '[': ']',
             }
     # The next regex matches anything of the form '\word*' and '\word'.
-    command_regex = re.compile(r'\\\w*\*?')
+    command_regex = re.compile(r'\\[\w@]*\*?')
 
     head = ''
     tail = text
