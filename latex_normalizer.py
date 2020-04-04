@@ -1,8 +1,6 @@
 import os.path
 import re
 
-#TODO deal with @
-# for an example, see 0705.1375
 
 def _matching_paren_pos(string: str, open_paren: str='{', 
                         close_paren: str='}') -> int:
