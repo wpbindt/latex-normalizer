@@ -286,9 +286,9 @@ def _remove_commands(text: str) -> str:
         # because input like "\command{\command}" is possible.
         broken_text = command_regex.split(tail, maxsplit=1)
         if len(broken_text) == 1:
-            head += broken_text[0]
+            head = head + broken_text[0]
             break
-        head += broken_text[0] + ' '
+        head = head + broken_text[0] + ' '
         tail = broken_text[1]
         # Iteratively remove everything between consecutive brackets in
         # tail.
