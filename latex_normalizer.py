@@ -117,7 +117,6 @@ def _interval_to_indices(interval: Tuple[int,int]) -> Set[int]:
         return set(range(x, y+1))
 
 
-
 def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
     r'''
     Takes a string and a list of intervals, and returns the string with
@@ -148,7 +147,18 @@ def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
         ...
     Exception: interval out of bounds
     '''
-    pass
+    # We store the indices in a set to remove duplicates.
+    indices_set = {index for interval in intervals
+                   for index in _interval_to_indices(interval)}
+    if intervals:
+        if max(indices_set) > len(text) - 1 or min(indices_set) < 0:
+            raise Exception('interval out of bounds')
+        # We reverse the indices because index removal is not a commutative
+        # operation.
+        indices_list = sorted(indices_set, reverse=True)
+        for index in indices_list:
+            text = text[:index] + text[index + 1:]
+    return text
 
 
 def _remove_line_comments(text: str) -> str:
