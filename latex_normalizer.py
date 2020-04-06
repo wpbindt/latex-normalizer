@@ -94,6 +94,39 @@ def _matching_brackets_digram(text: str, open_bracket: str=r'\(',
         return matches
 
 
+def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
+    r'''
+    Takes a string and a list of intervals, and returns the string with
+    these intervals removed.
+
+    >>> _excise_intervals('hey', [])
+    'hey'
+
+    >>> _excise_intervals('Remove this and nothing else', [(7, 10)])
+    'Remove  and nothing else'
+
+    >>> _excise_intervals('Remove this and nothing else', [(7, 8), (9, 10)])
+    'Remove  and nothing else'
+
+    >>> _excise_intervals('Remove this and nothing else', [(7, 10), (8, 9)])
+    'Remove  and nothing else'
+
+    >>> _excise_intervals('Remove this and nothing else', [(7, 9), (8, 10)])
+    'Remove  and nothing else'
+
+    >>> _excise_intervals('hey', [(3, 4)])
+    Traceback (most recent call last):
+        ...
+    Exception: interval out of bounds
+
+    >>> _excise_intervals('hey', [(2, 4)])
+    Traceback (most recent call last):
+        ...
+    Exception: interval out of bounds
+    '''
+    pass
+
+
 def _remove_line_comments(text: str) -> str:
     r'''
     Remove line comments from latex code.
