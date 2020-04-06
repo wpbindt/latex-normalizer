@@ -1,6 +1,6 @@
 import os.path
 import re
-from typing import List, Dict, Tuple
+from typing import List, Set, Tuple
 
 
 def _matching_paren_pos(string: str, open_paren: str='{', 
@@ -92,6 +92,30 @@ def _matching_brackets_digram(text: str, open_bracket: str=r'\(',
         raise Exception('brackets are unbalanced')
     else:
         return matches
+
+
+def _interval_to_indices(interval: Tuple[int,int]) -> Set[int]:
+    '''
+    Takes an interval, and returns the set of indices that the interval
+    comprises, right and left inclusive.
+
+    >>> _interval_to_indices((1,1))
+    {1}
+
+    >>> _interval_to_indices((3,5))
+    {3, 4, 5}
+
+    >>> _interval_to_indices((3,2))
+    Traceback (most recent call last):
+        ...
+    Exception: interval out of order
+    '''
+    x, y = interval
+    if y < x:
+        raise Exception('interval out of order')
+    else:
+        return set(range(x, y+1))
+
 
 
 def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
