@@ -147,15 +147,16 @@ def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
         ...
     Exception: interval out of bounds
     '''
-    # We store the indices in a set to remove duplicates.
+    # Store the indices in a set to remove duplicates, because removal
+    # by index is not an idempotent operation.
     indices_set = {index for interval in intervals
                    for index in _interval_to_indices(interval)}
+    # Reverse the indices because removal by index is not a commutative
+    # operation.
+    indices_list = sorted(indices_set, reverse=True)
     if intervals:
         if max(indices_set) > len(text) - 1 or min(indices_set) < 0:
             raise Exception('interval out of bounds')
-        # We reverse the indices because index removal is not a commutative
-        # operation.
-        indices_list = sorted(indices_set, reverse=True)
         for index in indices_list:
             text = text[:index] + text[index + 1:]
     return text
