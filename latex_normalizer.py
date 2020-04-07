@@ -456,7 +456,12 @@ def _remove_bracket_equations(text: str) -> str:
     >>> _remove_bracket_equations(r'This is not: \[1 \(+\) 1\]')
     'This is not:  '
     '''
-    pass
+    round_bracket_intervals = _matching_brackets_digram(text)
+    square_bracket_intervals = _matching_brackets_digram(text,
+                                                          open_bracket=r'\[',
+                                                          close_bracket=r'\]')
+    intervals_to_remove = round_bracket_intervals + square_bracket_intervals
+    return _excise_intervals(text, intervals_to_remove)
 
 
 def _remove_equations(text: str) -> str:
