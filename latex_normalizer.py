@@ -437,6 +437,28 @@ def _remove_commands(text: str) -> str:
     return head
 
 
+def _remove_bracket_equations(text: str) -> str:
+    r'''
+    Remove inline and display equations delimited by \( and \[.
+    
+    >>> _remove_bracket_equations('abc')
+    'abc'
+
+    >>> _remove_bracket_equations(r'These too: \(1 + 1\)')
+    'These too:  '
+
+    >>> _remove_bracket_equations(r'This is an actual equation: \[1 + 1 = \$\]')
+    'This is an actual equation:  '
+
+    >>> _remove_bracket_equations(r'This is not: \(1 \[+\] 1\)')
+    'This is not:  '
+
+    >>> _remove_bracket_equations(r'This is not: \[1 \(+\) 1\]')
+    'This is not:  '
+    '''
+    pass
+
+
 def _remove_equations(text: str) -> str:
     r'''
     Remove inline and display equations.
@@ -471,7 +493,15 @@ def _remove_equations(text: str) -> str:
     '  '
     '''
     #TODO Get rid of the regex, possibly by writing a bracket-matching
-    # function. This should automatically fix the two doctests that fail.
+    # function. This should automatically fix the two doctests that
+    # fail.
+    # Some thoughts: the only way nested stuff like $$ $ $ $$ occurs is
+    # when the inner equation is inside a command or an environment.
+    # So, as long as we apply remove_equations after removing commands
+    # and environments, we are fine. Then it's a matter of collecting
+    # all $, $$, $$$, and maybe $$$$ (but no more) and their positions
+    # in a list, and retrieving a list of intervals to be removed from
+    # that.
     eqn_regex = re.compile(r'''
                     ((?<!\\)(?<!\$)\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$(?!\$))
                     |((?<!\\)(?<!\$)\$\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$\$(?!\$))
