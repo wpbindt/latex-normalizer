@@ -1,4 +1,3 @@
-from itertools import islice
 import os.path
 import re
 from typing import List, Tuple
