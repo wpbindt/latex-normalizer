@@ -516,11 +516,11 @@ def _remove_equations(text: str) -> str:
     eqn_regex = re.compile(r'''
                     ((?<!\\)(?<!\$)\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$(?!\$))
                     |((?<!\\)(?<!\$)\$\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$\$(?!\$))
-                    |((?<!\\)\\\[[\s\S]*?(?<!\\)\\\])
-                    |((?<!\\)\\\([\s\S]*?(?<!\\)\\\))
                            ''',
                            re.VERBOSE)
-    return eqn_regex.sub(' ', text)
+    text = eqn_regex.sub(' ', text)
+    text = _remove_bracket_equations(text)
+    return text
 
 
 def _remove_special_characters(text: str) -> str:
