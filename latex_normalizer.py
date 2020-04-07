@@ -1,3 +1,4 @@
+from itertools import islice
 import os.path
 import re
 from typing import List, Tuple
@@ -489,25 +490,54 @@ def _remove_dollar_equations(text: str) -> str:
     r'''
     Remove inline and display equations delimited by $ or $$.
 
-    >>> _remove_equations(r'No equation, \$3.50, \$2')
+    >>> _remove_dollar_equations(r'No equation, \$3.50, \$2')
     'No equation, \\$3.50, \\$2'
 
-    >>> _remove_equations('An equation $1 + 1\$$ should go')
+    >>> _remove_dollar_equations('An equation $1 + 1\$$ should go')
     'An equation   should go'
 
-    >>> _remove_equations('Display equations $$\n 1 + 1 \n $$ too')
+    >>> _remove_dollar_equations('Display equations $$\n 1 + 1 \n $$ too')
     'Display equations   too'
 
-    >>> _remove_equations('$ back $$ to $$ back $')
+    >>> _remove_dollar_equations('$ back $$ to $$ back $')
     '   '
 
-    >>> _remove_equations(r'$$ \text{$nested$} $$')
-    ' '
+    >>> _remove_dollar_equations(r'$$ \text{$nested$} $$')
+    Traceback (most recent call last):
+        ...
+    Exception: LaTeX syntax error
 
-    >>> _remove_equations('$ back $$$ to back $$')
+    >>> _remove_dollar_equations('$ back $$$ to back $$')
     '  '
     '''
-    pass
+    # get list of the form [(x, i)], where x is a token of the form $,
+    # $$, $$$ occurring in text, and i is the index of the first
+    # character. Use islice to skip ahead in the for loop iterated by
+    # text (next(islice(iterator, n, n), None))
+    bad_syntax_regex = re.compile(r'(?<!\\)(?:\\\\)*\${5}')
+    if bad_syntax_regex.search(text):
+        raise Exception('LaTeX syntax error')
+    token_regex = re.compile(r'(?<!\\)(?:\\\\)*(\${1,4})')
+    spans = [match.span() for match in token_regex.finditer(text)]
+    tokens = [(start, finish - start) for start, finish in spans]
+    intervals = []
+    while tokens:
+        try:
+            close_pos, close_len = tokens.pop()
+            open_pos, open_len = tokens.pop()
+        except:
+            raise Exception('LaTeX syntax error')
+        if close_len == 3:
+            raise Exception('LaTeX syntax error')
+        elif close_len == open_len:
+            intervals.append((open_pos, close_pos + close_len - 1))
+        elif open_len > close_len:
+            remainder = open_len - close_len
+            intervals.append((open_pos + remainder, close_pos + close_len - 1))
+            tokens.append((open_pos, remainder))
+        else:
+            raise Exception('LaTeX syntax error')
+    return _excise_intervals(text, intervals)
 
 
 def _remove_equations(text: str) -> str:
@@ -538,7 +568,9 @@ def _remove_equations(text: str) -> str:
     '   '
 
     >>> _remove_equations(r'$$ \text{$nested$} $$')
-    ' '
+    Traceback (most recent call last):
+        ...
+    Exception: LaTeX syntax error
 
     >>> _remove_equations('$ back $$$ to back $$')
     '  '
