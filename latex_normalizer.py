@@ -1,6 +1,6 @@
 import os.path
 import re
-from typing import List, Set, Tuple
+from typing import List, Tuple
 
 
 def _matching_paren_pos(string: str, open_paren: str='{', 
@@ -98,16 +98,16 @@ def _matching_brackets_digram(text: str, open_bracket: str=r'\(',
         return matches
 
 
-def _interval_to_indices(interval: Tuple[int,int]) -> Set[int]:
+def _interval_to_indices(interval: Tuple[int,int]) -> List[int]:
     '''
     Takes an interval, and returns the set of indices that the interval
     comprises, right and left inclusive.
 
     >>> _interval_to_indices((1,1))
-    {1}
+    [1]
 
     >>> _interval_to_indices((3,5))
-    {3, 4, 5}
+    [3, 4, 5]
 
     >>> _interval_to_indices((3,2))
     Traceback (most recent call last):
@@ -118,7 +118,7 @@ def _interval_to_indices(interval: Tuple[int,int]) -> Set[int]:
     if y < x:
         raise Exception('interval out of order')
     else:
-        return set(range(x, y+1))
+        return list(range(x, y+1))
 
 
 def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
@@ -148,23 +148,38 @@ def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
         ...
     Exception: interval out of bounds
 
-    >>> _excise_intervals('hey', [(2, 4)])
+    >>> _excise_intervals('hey', [(2, 3)])
     Traceback (most recent call last):
         ...
     Exception: interval out of bounds
     '''
-    # Store the indices in a set to remove duplicates, because removal
-    # by index is not an idempotent operation.
-    indices_set = {index for interval in intervals
-                   for index in _interval_to_indices(interval)}
+    ii_list = []
+    indices_list = []
+    for start, end in sorted(intervals):
+        if start in indices_list:
+            if end in indices_list:
+                continue
+            else:
+                raise Exception('non-trivially overlapping intervals')
+        else:
+            indicators = [1] + [0] * (end - start)
+            indices = _interval_to_indices((start,end))
+            indices_indicators = list(zip(indices, indicators))
+            indices_list = indices_list + indices
+            ii_list = ii_list + indices_indicators
+
     # Reverse the indices because removal by index is not a commutative
     # operation.
-    indices_list = sorted(indices_set, reverse=True)
+    sorted_ii_list = sorted(ii_list, reverse=True)
+
     if intervals:
-        if max(indices_set) > len(text) - 1 or min(indices_set) < 0:
+        if max(indices_list) > len(text) - 1:
             raise Exception('interval out of bounds')
-        for index in indices_list:
-            text = text[:index] + text[index + 1:]
+        for index, indicator in sorted_ii_list:
+            if indicator:
+                text = text[:index] + ' ' + text[index + 1:]
+            else:
+                text = text[:index] + text[index + 1:]
     return text
 
 
