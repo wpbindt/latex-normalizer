@@ -559,7 +559,7 @@ def _remove_equations(text: str) -> str:
     #                       ''',
     #                       re.VERBOSE)
     #text = eqn_regex.sub(' ', text)
-    text = _remove_
+    text = _remove_dollar_equations(text)
     text = _remove_bracket_equations(text)
     return text
 
