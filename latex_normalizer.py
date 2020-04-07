@@ -85,6 +85,10 @@ def _matching_brackets_digram(text: str, open_bracket: str=r'\(',
         elif digram == close_bracket:
             try:
                 open_bracket, open_pos = opening_brackets.pop()
+                # pos is the position of the first character of the 
+                # closing bracket, but we want to include both
+                # of its characters in the interval, so we append
+                # pos + 1.
                 matches.append((open_pos, pos + 1))
             except IndexError:
                 raise Exception('brackets are unbalanced')
@@ -126,16 +130,18 @@ def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
     'hey'
 
     >>> _excise_intervals('Remove this and nothing else', [(7, 10)])
-    'Remove  and nothing else'
+    'Remove   and nothing else'
 
     >>> _excise_intervals('Remove this and nothing else', [(7, 8), (9, 10)])
-    'Remove  and nothing else'
+    'Remove    and nothing else'
 
     >>> _excise_intervals('Remove this and nothing else', [(7, 10), (8, 9)])
-    'Remove  and nothing else'
+    'Remove   and nothing else'
 
     >>> _excise_intervals('Remove this and nothing else', [(7, 9), (8, 10)])
-    'Remove  and nothing else'
+    Traceback (most recent call last):
+        ...
+    Exception: non-trivially overlapping intervals
 
     >>> _excise_intervals('hey', [(3, 4)])
     Traceback (most recent call last):
