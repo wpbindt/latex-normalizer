@@ -413,8 +413,8 @@ def _remove_commands(text: str) -> str:
     >>> _remove_commands('\@command')
     ' '
     '''
-    # This dictionary will be used as input for _matching_paren_pos
-    # later.
+    # The values and keys of this dictionary will be used as input for 
+    # _matching_paren_pos later.
     paren_dict = {
             '{': '}',
             '[': ']',
@@ -485,6 +485,31 @@ def _remove_bracket_equations(text: str) -> str:
     return _excise_intervals(text, intervals_to_remove)
 
 
+def _remove_dollar_equations(text: str) -> str:
+    r'''
+    Remove inline and display equations delimited by $ or $$.
+
+    >>> _remove_equations(r'No equation, \$3.50, \$2')
+    'No equation, \\$3.50, \\$2'
+
+    >>> _remove_equations('An equation $1 + 1\$$ should go')
+    'An equation   should go'
+
+    >>> _remove_equations('Display equations $$\n 1 + 1 \n $$ too')
+    'Display equations   too'
+
+    >>> _remove_equations('$ back $$ to $$ back $')
+    '   '
+
+    >>> _remove_equations(r'$$ \text{$nested$} $$')
+    ' '
+
+    >>> _remove_equations('$ back $$$ to back $$')
+    '  '
+    '''
+    pass
+
+
 def _remove_equations(text: str) -> str:
     r'''
     Remove inline and display equations.
@@ -528,12 +553,13 @@ def _remove_equations(text: str) -> str:
     # all $, $$, $$$, and maybe $$$$ (but no more) and their positions
     # in a list, and retrieving a list of intervals to be removed from
     # that.
-    eqn_regex = re.compile(r'''
-                    ((?<!\\)(?<!\$)\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$(?!\$))
-                    |((?<!\\)(?<!\$)\$\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$\$(?!\$))
-                           ''',
-                           re.VERBOSE)
-    text = eqn_regex.sub(' ', text)
+    #eqn_regex = re.compile(r'''
+    #                ((?<!\\)(?<!\$)\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$(?!\$))
+    #                |((?<!\\)(?<!\$)\$\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$\$(?!\$))
+    #                       ''',
+    #                       re.VERBOSE)
+    #text = eqn_regex.sub(' ', text)
+    text = _remove_
     text = _remove_bracket_equations(text)
     return text
 
