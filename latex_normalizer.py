@@ -3,6 +3,55 @@ import re
 from typing import List, Tuple
 
 
+def latex_normalizer(text: str) -> str:
+    r'''
+    Take a string containing latex syntax,
+    and returns a string stripped of that
+    syntax. For example,
+    "\begin{document} Hi! \end{document}"
+    becomes "Hi"
+    '''
+    text = _remove_line_comments(text)
+    text = _remove_accents(text)
+    text = _normalize_commands(text)
+    text = _remove_environments(text)
+    text = _strip_environments_labels(text)
+    text = _remove_commands(text)
+    text = _remove_equations(text)
+    text = _remove_special_characters(text)
+    text = _remove_white_space(text)
+    return text
+
+
+def tex_file_normalizer(path: str) -> None:
+    '''
+    Takes path to original tex file, "original"
+    and writes normalized version to "original_normalized"
+    in the same directory.
+    '''
+    abs_path = os.path.realpath(path)
+    directory, file_name = os.path.split(abs_path)
+    normalized_file_name = f'{file_name}_normalized'
+    normalized_path = directory + os.path.sep + normalized_file_name
+    while os.path.isfile(normalized_path):
+        print(f'A file with the name {normalized_file_name} already exists. \n'
+              'Please enter a new filename (or press <RETURN> to exit): ')
+        normalized_file_name = input()
+        if normalized_file_name:
+            normalized_path = directory + os.path.sep + normalized_file_name
+        else:
+            return
+
+    # Opens the tex file, and normalizes the result.
+    with open(path, 'r') as file:
+        text = file.read()
+    text = latex_normalizer(text)
+
+    # Writes the result to a file named original_file_name_normalized.
+    with open(normalized_path, 'a') as normalized_file:
+        normalized_file.write(text)
+
+
 def _matching_paren_pos(string: str, open_paren: str = '{',
                         close_paren: str = '}') -> int:
     r'''
@@ -610,55 +659,6 @@ def _remove_white_space(text: str) -> str:
     Replace white space (including tabs and newlines) by a single space.
     '''
     return " ".join(text.split())
-
-
-def latex_normalizer(text: str) -> str:
-    r'''
-    Take a string containing latex syntax,
-    and returns a string stripped of that
-    syntax. For example,
-    "\begin{document} Hi! \end{document}"
-    becomes "Hi"
-    '''
-    text = _remove_line_comments(text)
-    text = _remove_accents(text)
-    text = _normalize_commands(text)
-    text = _remove_environments(text)
-    text = _strip_environments_labels(text)
-    text = _remove_commands(text)
-    text = _remove_equations(text)
-    text = _remove_special_characters(text)
-    text = _remove_white_space(text)
-    return text
-
-
-def tex_file_normalizer(path: str) -> None:
-    '''
-    Takes path to original tex file, "original"
-    and writes normalized version to "original_normalized"
-    in the same directory.
-    '''
-    abs_path = os.path.realpath(path)
-    directory, file_name = os.path.split(abs_path)
-    normalized_file_name = f'{file_name}_normalized'
-    normalized_path = directory + os.path.sep + normalized_file_name
-    while os.path.isfile(normalized_path):
-        print(f'A file with the name {normalized_file_name} already exists. \n'
-              'Please enter a new filename (or press <RETURN> to exit): ')
-        normalized_file_name = input()
-        if normalized_file_name:
-            normalized_path = directory + os.path.sep + normalized_file_name
-        else:
-            return
-
-    # Opens the tex file, and normalizes the result.
-    with open(path, 'r') as file:
-        text = file.read()
-    text = latex_normalizer(text)
-
-    # Writes the result to a file named original_file_name_normalized.
-    with open(normalized_path, 'a') as normalized_file:
-        normalized_file.write(text)
 
 
 if __name__ == "__main__":
