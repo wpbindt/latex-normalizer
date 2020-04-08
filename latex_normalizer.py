@@ -1,9 +1,10 @@
 import os.path
 import re
+from typing import List, Tuple
 
 
-def _matching_paren_pos(string: str, open_paren: str='{', 
-                        close_paren: str='}') -> int:
+def _matching_paren_pos(string: str, open_paren: str = '{',
+                        close_paren: str = '}') -> int:
     r'''
     Find the position of the parenthesis closing the one a string
     starts with.
@@ -22,7 +23,7 @@ def _matching_paren_pos(string: str, open_paren: str='{',
     Exception: unmatched parenthesis
     '''
     if string[0] != open_paren:
-        raise Exception(f'leading character ({string[0]}) ' 
+        raise Exception(f'leading character ({string[0]}) '
                         f'should be {open_paren}')
 
     # Iterating over the string, put the opening brackets encountered
@@ -37,6 +38,157 @@ def _matching_paren_pos(string: str, open_paren: str='{',
             if not open_parens:
                 return pos
     raise Exception('unmatched parenthesis')
+
+
+def _matching_brackets_digram(text: str, open_bracket: str = r'\(',
+                              close_bracket: str = r'\)'
+                              ) -> List[Tuple[int, int]]:
+    r'''
+    Match two-character brackets in a string, and return lists of pairs
+    of positions of the matching brackets, indexed in a dictionary by
+    bracket type.
+
+    Positional arguments:
+    text -- The string where we want to find the matching brackets.
+    brackets -- Dictionary whose keys are the closing brackets, and
+    whose values are the opening brackets.
+
+    >>> _matching_brackets_digram('abcd')
+    []
+
+    >>> _matching_brackets_digram(r'\( \)')
+    [(0, 4)]
+
+    >>> _matching_brackets_digram(r'\(\(\)\)')
+    [(2, 5), (0, 7)]
+
+    >>> _matching_brackets_digram(r'\(\(\(\)')
+    Traceback (most recent call last):
+        ...
+    Exception: brackets are unbalanced
+
+    >>> _matching_brackets_digram(r'\(')
+    Traceback (most recent call last):
+        ...
+    Exception: brackets are unbalanced
+
+    >>> _matching_brackets_digram(r'\)')
+    Traceback (most recent call last):
+        ...
+    Exception: brackets are unbalanced
+    '''
+    opening_brackets = []
+    matches = []
+    digrams = [a + b for a, b in zip(text, text[1:])]
+    for pos, digram in enumerate(digrams):
+        if digram == open_bracket:
+            opening_brackets.append((digram, pos))
+        elif digram == close_bracket:
+            try:
+                open_bracket, open_pos = opening_brackets.pop()
+                # pos is the position of the first character of the
+                # closing bracket, but we want to include both
+                # of its characters in the interval, so we append
+                # pos + 1.
+                matches.append((open_pos, pos + 1))
+            except IndexError:
+                raise Exception('brackets are unbalanced')
+    if opening_brackets:
+        raise Exception('brackets are unbalanced')
+    else:
+        return matches
+
+
+def _interval_to_indices(interval: Tuple[int, int]) -> List[int]:
+    '''
+    Takes an interval, and returns the set of indices that the interval
+    comprises, right and left inclusive.
+
+    >>> _interval_to_indices((1,1))
+    [1]
+
+    >>> _interval_to_indices((3,5))
+    [3, 4, 5]
+
+    >>> _interval_to_indices((3,2))
+    Traceback (most recent call last):
+        ...
+    Exception: interval out of order
+    '''
+    x, y = interval
+    if y < x:
+        raise Exception('interval out of order')
+    else:
+        return list(range(x, y+1))
+
+
+def _excise_intervals(text: str, intervals: List[Tuple[int, int]]) -> str:
+    r'''
+    Takes a string and a list of intervals, and returns the string with
+    these intervals replaced by single white spaces.
+
+    >>> _excise_intervals('hey', [])
+    'hey'
+
+    >>> _excise_intervals('Remove this and nothing else', [(7, 10)])
+    'Remove   and nothing else'
+
+    >>> _excise_intervals('Remove this and nothing else', [(7, 8), (9, 10)])
+    'Remove    and nothing else'
+
+    >>> _excise_intervals('Remove this and nothing else', [(7, 10), (8, 9)])
+    'Remove   and nothing else'
+
+    >>> _excise_intervals('Remove this and nothing else', [(7, 9), (8, 10)])
+    Traceback (most recent call last):
+        ...
+    Exception: non-trivially overlapping intervals
+
+    >>> _excise_intervals('hey', [(3, 4)])
+    Traceback (most recent call last):
+        ...
+    Exception: interval out of bounds
+
+    >>> _excise_intervals('hey', [(2, 3)])
+    Traceback (most recent call last):
+        ...
+    Exception: interval out of bounds
+    '''
+    # Store the indices spanned by the intervals in a list ii_list of
+    # tuples of the form (index, indicator), where indicator is 1 if
+    # index does not occur as a non-first element of an interval. That
+    # is, if we have intervals (1,3), (2,3), then ii_list will consist
+    # of (1,1), (2,0), (3,0), not (1,1), (2,1), (3,0).
+    ii_list = []
+    indices_list = []
+    for start, end in sorted(intervals):
+        if start in indices_list:
+            if end in indices_list:
+                continue
+            else:
+                raise Exception('non-trivially overlapping intervals')
+        else:
+            indicators = [1] + [0] * (end - start)
+            indices = _interval_to_indices((start, end))
+            indices_indicators = list(zip(indices, indicators))
+            indices_list = indices_list + indices
+            ii_list = ii_list + indices_indicators
+
+    # Reverse the indices because removal by index is not a commutative
+    # operation.
+    ii_list = sorted(ii_list, reverse=True)
+    # Remove the indices from the string, taking care to replace it by
+    # a single space if the index does not occur as a non-first
+    # character in the intervals.
+    if intervals:
+        if max(indices_list) > len(text) - 1:
+            raise Exception('interval out of bounds')
+        for index, indicator in ii_list:
+            if indicator:
+                text = text[:index] + ' ' + text[index + 1:]
+            else:
+                text = text[:index] + text[index + 1:]
+    return text
 
 
 def _remove_line_comments(text: str) -> str:
@@ -160,9 +312,6 @@ def _normalize_commands(text: str) -> str:
         'author',
         'footnote',
         'emph',
-        'text',
-        'textit',
-        'textrm',
     ]
     normalized_commands_regex = re.compile(
         r'\\('
@@ -269,8 +418,8 @@ def _remove_commands(text: str) -> str:
     >>> _remove_commands('\@command')
     ' '
     '''
-    # This dictionary will be used as input for _matching_paren_pos
-    # later.
+    # The values and keys of this dictionary will be used as input for
+    # _matching_paren_pos later.
     paren_dict = {
             '{': '}',
             '[': ']',
@@ -314,6 +463,100 @@ def _remove_commands(text: str) -> str:
     return head
 
 
+def _remove_bracket_equations(text: str) -> str:
+    r'''
+    Remove inline and display equations delimited by \( and \[.
+
+    >>> _remove_bracket_equations('abc')
+    'abc'
+
+    >>> _remove_bracket_equations(r'These too: \(1 + 1\)')
+    'These too:  '
+
+    >>> _remove_bracket_equations(r'This is an equation: \[1 + 1 = \$\]')
+    'This is an equation:  '
+
+    >>> _remove_bracket_equations(r'This is not: \(1 \[+\] 1\)')
+    'This is not:  '
+
+    >>> _remove_bracket_equations(r'This is not: \[1 \(+\) 1\]')
+    'This is not:  '
+    '''
+    round_bracket_intervals = _matching_brackets_digram(text)
+    square_bracket_intervals = _matching_brackets_digram(text,
+                                                         open_bracket=r'\[',
+                                                         close_bracket=r'\]')
+    intervals_to_remove = round_bracket_intervals + square_bracket_intervals
+    return _excise_intervals(text, intervals_to_remove)
+
+
+def _remove_dollar_equations(text: str) -> str:
+    r'''
+    Remove inline and display equations delimited by $ or $$.
+
+    >>> _remove_dollar_equations(r'No equation, \$3.50, \$2')
+    'No equation, \\$3.50, \\$2'
+
+    >>> _remove_dollar_equations('An equation $1 + 1\$$ should go')
+    'An equation   should go'
+
+    >>> _remove_dollar_equations('Display equations $$\n 1 + 1 \n $$ too')
+    'Display equations   too'
+
+    >>> _remove_dollar_equations('$ back $$ to $$ back $')
+    '   '
+
+    >>> _remove_dollar_equations('$$ $$$$ $$')
+    '  '
+
+    >>> _remove_dollar_equations(r'$$ \text{$nested$} $$')
+    Traceback (most recent call last):
+        ...
+    Exception: LaTeX syntax error
+
+    >>> _remove_dollar_equations('$ back $$$ to back $$')
+    '  '
+    '''
+    # First check if the latex syntax is valid. Up to 4 dollar signs
+    # in a row are allowed, 5 if the first is preceded by and odd
+    # number of backslashes (compiling to a bunch of line breaks and a
+    # dollar sign).
+    bad_syntax_regex = re.compile(r'(?<!\\)(?:\\\\)*\${5}')
+    if bad_syntax_regex.search(text):
+        raise Exception('LaTeX syntax error')
+    # Store the starting positions of delimiters of the form $, $$,
+    # $$$, $$$$, and their lengths in tokens.
+    token_regex = re.compile(r'(?<!\\)(?:\\\\)*(\${1,4})')
+    spans = [match.span() for match in token_regex.finditer(text)]
+    tokens = [(start, finish - start) for start, finish in spans]
+    # Going from right to left through tokens, match each token to a
+    # substring of the next token of equal length. Store the resulting
+    # interval in intervals, and append the remainder of the next token
+    # to tokens. If this is not possible, raise a syntax error. The
+    # correctness of this algorithm relies on there not being any
+    # nested equations. For example, it does not distinguish between
+    # '$1 + \text{$1 = 2$ and } 1 + 2 = 3$' and the equations
+    # '$1 + 1 = 2$ and $1 + 2 = 3$'.
+    intervals = []
+    while tokens:
+        try:
+            close_pos, close_len = tokens.pop()
+            open_pos, open_len = tokens.pop()
+        except IndexError:
+            raise Exception('LaTeX syntax error')
+        if close_len == 3:
+            raise Exception('LaTeX syntax error')
+        elif close_len == open_len:
+            intervals.append((open_pos, close_pos + close_len - 1))
+        elif open_len > close_len:
+            remainder = open_len - close_len
+            intervals.append((open_pos + remainder, close_pos + close_len - 1))
+            tokens.append((open_pos, remainder))
+        else:
+            raise Exception('LaTeX syntax error')
+    return _excise_intervals(text, intervals)
+
+
 def _remove_equations(text: str) -> str:
     r'''
     Remove inline and display equations.
@@ -341,22 +584,17 @@ def _remove_equations(text: str) -> str:
     >>> _remove_equations('$ back $$ to $$ back $')
     '   '
 
-    >>> _remove_equations('$$ $ nested $ $$')
-    ' '
+    >>> _remove_equations(r'$$ \text{$nested$} $$')
+    Traceback (most recent call last):
+        ...
+    Exception: LaTeX syntax error
 
     >>> _remove_equations('$ back $$$ to back $$')
     '  '
     '''
-    #TODO Get rid of the regex, possibly by writing a bracket-matching
-    # function. This should automatically fix the two doctests that fail.
-    eqn_regex = re.compile(r'''
-                    ((?<!\\)(?<!\$)\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$(?!\$))
-                    |((?<!\\)(?<!\$)\$\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$\$(?!\$))
-                    |((?<!\\)\\\[[\s\S]*?(?<!\\)\\\])
-                    |((?<!\\)\\\([\s\S]*?(?<!\\)\\\))
-                           ''',
-                           re.VERBOSE)
-    return eqn_regex.sub(' ', text)
+    text = _remove_dollar_equations(text)
+    text = _remove_bracket_equations(text)
+    return text
 
 
 def _remove_special_characters(text: str) -> str:
@@ -375,7 +613,7 @@ def _remove_white_space(text: str) -> str:
 
 
 def latex_normalizer(text: str) -> str:
-    '''
+    r'''
     Take a string containing latex syntax,
     and returns a string stripped of that
     syntax. For example,
@@ -387,8 +625,8 @@ def latex_normalizer(text: str) -> str:
     text = _normalize_commands(text)
     text = _remove_environments(text)
     text = _strip_environments_labels(text)
-    text = _remove_equations(text)
     text = _remove_commands(text)
+    text = _remove_equations(text)
     text = _remove_special_characters(text)
     text = _remove_white_space(text)
     return text
@@ -426,4 +664,3 @@ def tex_file_normalizer(path: str) -> None:
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-
