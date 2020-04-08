@@ -509,6 +509,9 @@ def _remove_dollar_equations(text: str) -> str:
     >>> _remove_dollar_equations('$ back $$ to $$ back $')
     '   '
 
+    >>> _remove_dollar_equations('$$ $$$$ $$')
+    '  '
+    
     >>> _remove_dollar_equations(r'$$ \text{$nested$} $$')
     Traceback (most recent call last):
         ...
@@ -517,16 +520,26 @@ def _remove_dollar_equations(text: str) -> str:
     >>> _remove_dollar_equations('$ back $$$ to back $$')
     '  '
     '''
-    # get list of the form [(x, i)], where x is a token of the form $,
-    # $$, $$$ occurring in text, and i is the index of the first
-    # character. Use islice to skip ahead in the for loop iterated by
-    # text (next(islice(iterator, n, n), None))
+    # First check if the latex syntax is valid. Up to 4 dollar signs
+    # in a row are allowed, 5 if the first is preceded by and odd
+    # number of backslashes (compiling to a bunch of line breaks and a
+    # dollar sign).
     bad_syntax_regex = re.compile(r'(?<!\\)(?:\\\\)*\${5}')
     if bad_syntax_regex.search(text):
         raise Exception('LaTeX syntax error')
+    # Store the starting positions of delimiters of the form $, $$,
+    # $$$, $$$$, and their lengths in tokens.
     token_regex = re.compile(r'(?<!\\)(?:\\\\)*(\${1,4})')
     spans = [match.span() for match in token_regex.finditer(text)]
     tokens = [(start, finish - start) for start, finish in spans]
+    # Going from right to left through tokens, match each token to a
+    # substring of the next token of equal length. Store the resulting
+    # interval in intervals, and append the remainder of the next token
+    # to tokens. If this is not possible, raise a syntax error. The
+    # correctness of this algorithm relies on there not being any
+    # nested equations. For example, it does not distinguish between
+    # '$1 + \text{$1 = 2$ and } 1 + 2 = 3$' and the equations
+    # '$1 + 1 = 2$ and $1 + 2 = 3$'.
     intervals = []
     while tokens:
         try:
