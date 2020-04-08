@@ -125,7 +125,7 @@ def _interval_to_indices(interval: Tuple[int, int]) -> List[int]:
 def _excise_intervals(text: str, intervals: List[Tuple[int, int]]) -> str:
     r'''
     Takes a string and a list of intervals, and returns the string with
-    these intervals removed.
+    these intervals replaced by single white spaces.
 
     >>> _excise_intervals('hey', [])
     'hey'
@@ -154,6 +154,11 @@ def _excise_intervals(text: str, intervals: List[Tuple[int, int]]) -> str:
         ...
     Exception: interval out of bounds
     '''
+    # Store the indices spanned by the intervals in a list ii_list of
+    # tuples of the form (index, indicator), where indicator is 1 if 
+    # index does not occur as a non-first element of an interval. That
+    # is, if we have intervals (1,3), (2,3), then ii_list will consist
+    # of (1,1), (2,0), (3,0), not (1,1), (2,1), (3,0).
     ii_list = []
     indices_list = []
     for start, end in sorted(intervals):
@@ -171,12 +176,14 @@ def _excise_intervals(text: str, intervals: List[Tuple[int, int]]) -> str:
 
     # Reverse the indices because removal by index is not a commutative
     # operation.
-    sorted_ii_list = sorted(ii_list, reverse=True)
-
+    ii_list = sorted(ii_list, reverse=True)
+    # Remove the indices from the string, taking care to replace it by
+    # a single space if the index does not occur as a non-first
+    # character in the intervals.
     if intervals:
         if max(indices_list) > len(text) - 1:
             raise Exception('interval out of bounds')
-        for index, indicator in sorted_ii_list:
+        for index, indicator in ii_list:
             if indicator:
                 text = text[:index] + ' ' + text[index + 1:]
             else:
