@@ -3,8 +3,8 @@ import re
 from typing import List, Tuple
 
 
-def _matching_paren_pos(string: str, open_paren: str='{',
-                        close_paren: str='}') -> int:
+def _matching_paren_pos(string: str, open_paren: str = '{',
+                        close_paren: str = '}') -> int:
     r'''
     Find the position of the parenthesis closing the one a string
     starts with.
@@ -40,8 +40,8 @@ def _matching_paren_pos(string: str, open_paren: str='{',
     raise Exception('unmatched parenthesis')
 
 
-def _matching_brackets_digram(text: str, open_bracket: str=r'\(',
-                              close_bracket: str=r'\)'
+def _matching_brackets_digram(text: str, open_bracket: str = r'\(',
+                              close_bracket: str = r'\)'
                               ) -> List[Tuple[int, int]]:
     r'''
     Match two-character brackets in a string, and return lists of pairs
@@ -155,7 +155,7 @@ def _excise_intervals(text: str, intervals: List[Tuple[int, int]]) -> str:
     Exception: interval out of bounds
     '''
     # Store the indices spanned by the intervals in a list ii_list of
-    # tuples of the form (index, indicator), where indicator is 1 if 
+    # tuples of the form (index, indicator), where indicator is 1 if
     # index does not occur as a non-first element of an interval. That
     # is, if we have intervals (1,3), (2,3), then ii_list will consist
     # of (1,1), (2,0), (3,0), not (1,1), (2,1), (3,0).
@@ -508,7 +508,7 @@ def _remove_dollar_equations(text: str) -> str:
 
     >>> _remove_dollar_equations('$$ $$$$ $$')
     '  '
-    
+
     >>> _remove_dollar_equations(r'$$ \text{$nested$} $$')
     Traceback (most recent call last):
         ...
@@ -542,7 +542,7 @@ def _remove_dollar_equations(text: str) -> str:
         try:
             close_pos, close_len = tokens.pop()
             open_pos, open_len = tokens.pop()
-        except:
+        except IndexError:
             raise Exception('LaTeX syntax error')
         if close_len == 3:
             raise Exception('LaTeX syntax error')
@@ -613,7 +613,7 @@ def _remove_white_space(text: str) -> str:
 
 
 def latex_normalizer(text: str) -> str:
-    '''
+    r'''
     Take a string containing latex syntax,
     and returns a string stripped of that
     syntax. For example,
@@ -664,4 +664,3 @@ def tex_file_normalizer(path: str) -> None:
 if __name__ == "__main__":
     import doctest
     doctest.testmod()
-
