@@ -3,7 +3,7 @@ import re
 from typing import List, Tuple
 
 
-def _matching_paren_pos(string: str, open_paren: str='{', 
+def _matching_paren_pos(string: str, open_paren: str='{',
                         close_paren: str='}') -> int:
     r'''
     Find the position of the parenthesis closing the one a string
@@ -23,7 +23,7 @@ def _matching_paren_pos(string: str, open_paren: str='{',
     Exception: unmatched parenthesis
     '''
     if string[0] != open_paren:
-        raise Exception(f'leading character ({string[0]}) ' 
+        raise Exception(f'leading character ({string[0]}) '
                         f'should be {open_paren}')
 
     # Iterating over the string, put the opening brackets encountered
@@ -40,15 +40,16 @@ def _matching_paren_pos(string: str, open_paren: str='{',
     raise Exception('unmatched parenthesis')
 
 
-def _matching_brackets_digram(text: str, open_bracket: str=r'\(', 
-                      close_bracket: str=r'\)') -> List[Tuple[int, int]]:
+def _matching_brackets_digram(text: str, open_bracket: str=r'\(',
+                              close_bracket: str=r'\)'
+                              ) -> List[Tuple[int, int]]:
     r'''
     Match two-character brackets in a string, and return lists of pairs
     of positions of the matching brackets, indexed in a dictionary by
     bracket type.
 
     Positional arguments:
-    text -- The string where we want to find the matching brackets. 
+    text -- The string where we want to find the matching brackets.
     brackets -- Dictionary whose keys are the closing brackets, and
     whose values are the opening brackets.
 
@@ -85,7 +86,7 @@ def _matching_brackets_digram(text: str, open_bracket: str=r'\(',
         elif digram == close_bracket:
             try:
                 open_bracket, open_pos = opening_brackets.pop()
-                # pos is the position of the first character of the 
+                # pos is the position of the first character of the
                 # closing bracket, but we want to include both
                 # of its characters in the interval, so we append
                 # pos + 1.
@@ -98,7 +99,7 @@ def _matching_brackets_digram(text: str, open_bracket: str=r'\(',
         return matches
 
 
-def _interval_to_indices(interval: Tuple[int,int]) -> List[int]:
+def _interval_to_indices(interval: Tuple[int, int]) -> List[int]:
     '''
     Takes an interval, and returns the set of indices that the interval
     comprises, right and left inclusive.
@@ -121,7 +122,7 @@ def _interval_to_indices(interval: Tuple[int,int]) -> List[int]:
         return list(range(x, y+1))
 
 
-def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
+def _excise_intervals(text: str, intervals: List[Tuple[int, int]]) -> str:
     r'''
     Takes a string and a list of intervals, and returns the string with
     these intervals removed.
@@ -163,7 +164,7 @@ def _excise_intervals(text:str, intervals:List[Tuple[int,int]]) -> str:
                 raise Exception('non-trivially overlapping intervals')
         else:
             indicators = [1] + [0] * (end - start)
-            indices = _interval_to_indices((start,end))
+            indices = _interval_to_indices((start, end))
             indices_indicators = list(zip(indices, indicators))
             indices_list = indices_list + indices
             ii_list = ii_list + indices_indicators
@@ -413,7 +414,7 @@ def _remove_commands(text: str) -> str:
     >>> _remove_commands('\@command')
     ' '
     '''
-    # The values and keys of this dictionary will be used as input for 
+    # The values and keys of this dictionary will be used as input for
     # _matching_paren_pos later.
     paren_dict = {
             '{': '}',
@@ -461,15 +462,15 @@ def _remove_commands(text: str) -> str:
 def _remove_bracket_equations(text: str) -> str:
     r'''
     Remove inline and display equations delimited by \( and \[.
-    
+
     >>> _remove_bracket_equations('abc')
     'abc'
 
     >>> _remove_bracket_equations(r'These too: \(1 + 1\)')
     'These too:  '
 
-    >>> _remove_bracket_equations(r'This is an actual equation: \[1 + 1 = \$\]')
-    'This is an actual equation:  '
+    >>> _remove_bracket_equations(r'This is an equation: \[1 + 1 = \$\]')
+    'This is an equation:  '
 
     >>> _remove_bracket_equations(r'This is not: \(1 \[+\] 1\)')
     'This is not:  '
@@ -479,8 +480,8 @@ def _remove_bracket_equations(text: str) -> str:
     '''
     round_bracket_intervals = _matching_brackets_digram(text)
     square_bracket_intervals = _matching_brackets_digram(text,
-                                                          open_bracket=r'\[',
-                                                          close_bracket=r'\]')
+                                                         open_bracket=r'\[',
+                                                         close_bracket=r'\]')
     intervals_to_remove = round_bracket_intervals + square_bracket_intervals
     return _excise_intervals(text, intervals_to_remove)
 
@@ -574,22 +575,6 @@ def _remove_equations(text: str) -> str:
     >>> _remove_equations('$ back $$$ to back $$')
     '  '
     '''
-    #TODO Get rid of the regex, possibly by writing a bracket-matching
-    # function. This should automatically fix the two doctests that
-    # fail.
-    # Some thoughts: the only way nested stuff like $$ $ $ $$ occurs is
-    # when the inner equation is inside a command or an environment.
-    # So, as long as we apply remove_equations after removing commands
-    # and environments, we are fine. Then it's a matter of collecting
-    # all $, $$, $$$, and maybe $$$$ (but no more) and their positions
-    # in a list, and retrieving a list of intervals to be removed from
-    # that.
-    #eqn_regex = re.compile(r'''
-    #                ((?<!\\)(?<!\$)\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$(?!\$))
-    #                |((?<!\\)(?<!\$)\$\$(?!\$)[\s\S]+?(?<!\\)(?<!\$)\$\$(?!\$))
-    #                       ''',
-    #                       re.VERBOSE)
-    #text = eqn_regex.sub(' ', text)
     text = _remove_dollar_equations(text)
     text = _remove_bracket_equations(text)
     return text
