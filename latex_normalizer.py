@@ -34,7 +34,8 @@ def tex_file_normalizer(path: str) -> None:
     normalized_file_name = f'{file_name}_normalized'
     normalized_path = directory + os.path.sep + normalized_file_name
     while os.path.isfile(normalized_path):
-        normalized_file_name = input(f'A file with the name '
+        normalized_file_name = input(
+                f'A file with the name '
                 f'{normalized_file_name} already exists. \n'
                 'Please enter a new filename (or press <RETURN> to exit): ')
         if normalized_file_name:
